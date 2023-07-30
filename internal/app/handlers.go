@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (s *app) ShortUrlHandler(w http.ResponseWriter, r *http.Request) {
+func (s *app) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		if r.URL.String() != "/" {
 			http.Error(w, "You should send a request to '/'", http.StatusBadRequest)
