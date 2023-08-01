@@ -11,7 +11,11 @@ func (s *app) ShortURLHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "You should send a request to '/'", http.StatusBadRequest)
 			return
 		}
-		data, _ := io.ReadAll(r.Body)
+		data, err := io.ReadAll(r.Body)
+		if err != nil || string(data) == "" {
+			http.Error(w, "Missing body", http.StatusBadRequest)
+			return
+		}
 		id := s.encode(string(data))
 		w.Header().Set("content-type", "text/plain")
 		w.WriteHeader(http.StatusCreated)
