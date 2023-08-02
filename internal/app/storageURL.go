@@ -8,21 +8,21 @@ var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 
 const host = "http://localhost:8080/"
 
-func (s *app) encode(url string) string {
+func (a *app) encode(url string) string {
 	id := generateRandomID(10)
-	_, ok := s.storage[id]
+	_, ok := a.storage[id]
 
 	for ok {
 		id := generateRandomID(10)
-		_, ok = s.storage[id]
+		_, ok = a.storage[id]
 	}
 
-	s.storage[id] = url
+	a.storage[id] = url
 	return host + id
 }
 
-func (s *app) decode(id string) (string, bool) {
-	url, ok := s.storage[id]
+func (a *app) decode(id string) (string, bool) {
+	url, ok := a.storage[id]
 	return url, ok
 }
 

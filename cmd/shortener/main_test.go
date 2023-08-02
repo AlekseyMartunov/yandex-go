@@ -1,19 +1,21 @@
 package main
 
 import (
-	"fmt"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app"
+	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
-func TestShortURLHandler(t *testing.T) {
+func TestWebEncodeURL(t *testing.T) {
 	a := app.NewApp()
+
+	handler := http.HandlerFunc(a.EncodeURL)
+	srv := httptest.NewServer(handler)
+
+	defer srv.Close()
 
 	type wants struct {
 		contentType string
@@ -21,7 +23,7 @@ func TestShortURLHandler(t *testing.T) {
 		statusCode  int
 	}
 
-	tests := []struct {
+	testCases := []struct {
 		name   string
 		url    string
 		method string
@@ -30,9 +32,9 @@ func TestShortURLHandler(t *testing.T) {
 	}{
 		{
 			name:   "test 1",
-			url:    "/",
 			method: http.MethodPost,
 			body:   "https://practicum.yandex.ru/",
+			url:    "/",
 			wants: wants{
 				contentType: "text/plain",
 				statusCode:  201,
@@ -41,31 +43,9 @@ func TestShortURLHandler(t *testing.T) {
 
 		{
 			name:   "test 2",
-			url:    "/Ejfkdsh",
 			method: http.MethodPost,
-			body:   "https://practicum.yandex.ru/",
-			wants: wants{
-				contentType: "text/plain; charset=utf-8",
-				statusCode:  400,
-				response:    "You should send a request to '/'\n",
-			},
-		},
-
-		{
-			name:   "test 3",
-			url:    "/Ejfkdsh",
-			method: http.MethodGet,
-			wants: wants{
-				contentType: "text/plain; charset=utf-8",
-				statusCode:  400,
-				response:    "Empty key\n",
-			},
-		},
-
-		{
-			name:   "test 4",
+			body:   "",
 			url:    "/",
-			method: http.MethodPost,
 			wants: wants{
 				contentType: "text/plain; charset=utf-8",
 				statusCode:  400,
@@ -74,31 +54,92 @@ func TestShortURLHandler(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := httptest.NewRequest(tt.method, tt.url, strings.NewReader(tt.body))
-			w := httptest.NewRecorder()
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := resty.New().R()
 
-			a.ShortURLHandler(w, r)
+			req.Method = tc.method
 
-			res := w.Result()
+			req.URL = srv.URL + tc.url
 
-			assert.Equal(t, tt.wants.statusCode, res.StatusCode)
-			assert.Equal(t, tt.wants.contentType, res.Header.Get("Content-Type"))
+			req.SetBody(tc.body)
 
-			defer res.Body.Close()
+			resp, err := req.Send()
 
-			if tt.wants.response != "" {
-				resBody, err := io.ReadAll(res.Body)
-				require.NoError(t, err)
+			assert.NoError(t, err, "error making HTTP request")
 
-				assert.Equal(t, tt.wants.response, string(resBody))
+			assert.Equal(t, tc.wants.statusCode, resp.StatusCode(),
+				"Response code didn't match expected")
+
+			assert.Equal(t, tc.wants.contentType, resp.Header().Get("Content-Type"),
+				"Content-Type didn't match expected")
+
+			if tc.wants.response != "" {
+				assert.Equal(t, tc.wants.response, string(resp.Body()),
+					"Response body didn't match expected")
 			}
 
-			fmt.Println()
+		})
+	}
+
+}
+
+func TestWebDecodeURL(t *testing.T) {
+	a := app.NewApp()
+
+	handler := http.HandlerFunc(a.DecodeURL)
+	srv := httptest.NewServer(handler)
+	defer srv.Close()
+
+	type wants struct {
+		contentType string
+		response    string
+		statusCode  int
+		header      string
+	}
+
+	testCases := []struct {
+		name   string
+		url    string
+		method string
+		wants  wants
+	}{
+		{
+			name:   "test 1",
+			method: http.MethodGet,
+			url:    "/",
+			wants: wants{
+				contentType: "text/plain; charset=utf-8",
+				statusCode:  400,
+				response:    "Empty key\n",
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			req := resty.New().R()
+
+			req.Method = tc.method
+
+			req.URL = srv.URL + tc.url
+
+			resp, err := req.Send()
+
+			assert.NoError(t, err, "error making HTTP request")
+
+			assert.Equal(t, tc.wants.statusCode, resp.StatusCode(),
+				"Response code didn't match expected")
+
+			assert.Equal(t, tc.wants.contentType, resp.Header().Get("Content-Type"),
+				"Content-Type didn't match expected")
+
+			if tc.wants.response != "" {
+				assert.Equal(t, tc.wants.response, string(resp.Body()),
+					"Response body didn't match expected")
+			}
 
 		})
-
 	}
 
 }
