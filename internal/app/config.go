@@ -1,6 +1,8 @@
 package app
 
-import "flag"
+import (
+	"flag"
+)
 
 type netAdress struct {
 	addr     string
@@ -9,7 +11,7 @@ type netAdress struct {
 
 func (a *app) GetConfig() {
 	flag.StringVar(&a.cfg.addr, "a", "127.0.0.1:8080", "Адрес для запуска приложения")
-	flag.StringVar(&a.cfg.baseHost, "b", "http://localhost:8080/", "Базовый адрес сокращенного URL")
+	flag.StringVar(&a.cfg.baseHost, "b", "http://localhost:8000/", "Базовый адрес сокращенного URL")
 
 	flag.Parse()
 }
@@ -19,5 +21,5 @@ func (a *app) GetAdres() string {
 }
 
 func (a *app) GetShorterURL() string {
-	return a.cfg.baseHost
+	return "http://" + a.cfg.baseHost
 }
