@@ -11,7 +11,7 @@ type netAdress struct {
 
 func (a *app) GetConfig() {
 	flag.StringVar(&a.cfg.addr, "a", "127.0.0.1:8080", "Адрес для запуска приложения")
-	flag.StringVar(&a.cfg.baseHost, "b", "http://127.0.0.1:8080/", "Базовый адрес сокращенного URL")
+	flag.StringVar(&a.cfg.baseHost, "b", "http://127.0.0.1:8080", "Базовый адрес сокращенного URL")
 
 	flag.Parse()
 }
