@@ -8,12 +8,13 @@ import (
 
 func main() {
 	a := app.NewApp()
+	a.GetConfig()
 
 	r := chi.NewRouter()
 	r.Get("/{url_id}", a.DecodeURL)
 	r.Post("/", a.EncodeURL)
 
-	err := http.ListenAndServe(":8080", r)
+	err := http.ListenAndServe(a.GetAdres(), r)
 	if err != nil {
 		panic(err)
 	}

@@ -6,8 +6,6 @@ import (
 
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-const host = "http://localhost:8080/"
-
 func (a *app) encode(url string) string {
 	id := generateRandomID(10)
 	_, ok := a.storage[id]
@@ -18,7 +16,7 @@ func (a *app) encode(url string) string {
 	}
 
 	a.storage[id] = url
-	return host + id
+	return id
 }
 
 func (a *app) decode(id string) (string, bool) {

@@ -13,7 +13,7 @@ func (a *app) EncodeURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing body", http.StatusBadRequest)
 		return
 	}
-	id := a.encode(string(data))
+	id := a.GetShorterURL() + a.encode(string(data))
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(id))
 }

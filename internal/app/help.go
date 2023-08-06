@@ -2,6 +2,7 @@ package app
 
 type app struct {
 	storage map[string]string
+	cfg     netAdress
 }
 
 func NewApp() *app {
