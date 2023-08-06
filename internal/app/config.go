@@ -21,5 +21,5 @@ func (a *app) GetAdres() string {
 }
 
 func (a *app) GetShorterURL() string {
-	return "http://" + a.cfg.baseHost
+	return a.cfg.baseHost
 }
