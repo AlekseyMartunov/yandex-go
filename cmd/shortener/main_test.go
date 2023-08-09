@@ -1,141 +1,133 @@
 package main
 
 import (
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app"
-	"github.com/go-resty/resty/v2"
+	"fmt"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/server"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
-func TestWebEncodeURL(t *testing.T) {
-	a := app.NewApp()
+func TestWebDecodeURL(t *testing.T) {
 
-	handler := http.HandlerFunc(a.EncodeURL)
-	srv := httptest.NewServer(handler)
-
-	defer srv.Close()
+	s := storage.NewStorage()
+	c := config.NewConfig()
+	r := server.NewBaseRouter(s, c)
+	router := r.Route()
 
 	type wants struct {
-		contentType string
-		response    string
 		statusCode  int
+		body        string
+		contentType string
 	}
 
 	testCases := []struct {
-		name   string
-		url    string
-		method string
-		body   string
-		wants  wants
+		name  string
+		url   string
+		body  string
+		wants wants
 	}{
 		{
-			name:   "test 1",
-			method: http.MethodPost,
-			body:   "https://practicum.yandex.ru/",
-			url:    "/",
+			name: "test1",
+			url:  "/",
 			wants: wants{
-				contentType: "text/plain",
-				statusCode:  201,
+				statusCode:  http.StatusMethodNotAllowed,
+				body:        "",
+				contentType: "",
 			},
 		},
-
 		{
-			name:   "test 2",
-			method: http.MethodPost,
-			body:   "",
-			url:    "/",
+			name: "test1",
+			url:  "/jgkflf",
 			wants: wants{
+				statusCode:  http.StatusBadRequest,
+				body:        "Empty key\n",
 				contentType: "text/plain; charset=utf-8",
-				statusCode:  400,
-				response:    "Missing body\n",
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			req := resty.New().R()
 
-			req.Method = tc.method
+			req := httptest.NewRequest("GET", tc.url, nil)
+			respRec := httptest.NewRecorder()
+			router.ServeHTTP(respRec, req)
 
-			req.URL = srv.URL + tc.url
-
-			req.SetBody(tc.body)
-
-			resp, err := req.Send()
-
-			assert.NoError(t, err, "error making HTTP request")
-
-			assert.Equal(t, tc.wants.statusCode, resp.StatusCode(),
+			assert.Equal(t, tc.wants.statusCode, respRec.Code,
 				"Response code didn't match expected")
 
-			assert.Equal(t, tc.wants.contentType, resp.Header().Get("Content-Type"),
-				"Content-Type didn't match expected")
+			assert.Equal(t, tc.wants.body, fmt.Sprintf("%v", respRec.Body),
+				"Response body didn't match expected")
 
-			if tc.wants.response != "" {
-				assert.Equal(t, tc.wants.response, string(resp.Body()),
-					"Response body didn't match expected")
-			}
+			assert.Equal(t, tc.wants.contentType, respRec.Header().Get("Content-Type"))
 
 		})
 	}
 
 }
 
-func TestWebDecodeURL(t *testing.T) {
-	a := app.NewApp()
+func TestWebEncodeURL(t *testing.T) {
 
-	handler := http.HandlerFunc(a.DecodeURL)
-	srv := httptest.NewServer(handler)
-	defer srv.Close()
+	s := storage.NewStorage()
+	c := config.NewConfig()
+	r := server.NewBaseRouter(s, c)
+	router := r.Route()
 
 	type wants struct {
-		contentType string
-		response    string
 		statusCode  int
-		header      string
+		body        string
+		contentType string
 	}
 
 	testCases := []struct {
-		name   string
-		url    string
-		method string
-		wants  wants
+		name  string
+		url   string
+		body  string
+		wants wants
 	}{
 		{
-			name:   "test 1",
-			method: http.MethodGet,
-			url:    "/",
+			name: "test1",
+			url:  "/",
+			body: "someURL",
 			wants: wants{
+				statusCode:  http.StatusCreated,
+				body:        "should be no empty body",
+				contentType: "text/plain",
+			},
+		},
+		{
+			name: "test2",
+			url:  "/",
+			wants: wants{
+				statusCode:  http.StatusBadRequest,
+				body:        "Missing body\n",
 				contentType: "text/plain; charset=utf-8",
-				statusCode:  400,
-				response:    "Empty key\n",
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			req := resty.New().R()
 
-			req.Method = tc.method
+			req := httptest.NewRequest("POST", tc.url, strings.NewReader(tc.body))
+			respRec := httptest.NewRecorder()
+			router.ServeHTTP(respRec, req)
 
-			req.URL = srv.URL + tc.url
-
-			resp, err := req.Send()
-
-			assert.NoError(t, err, "error making HTTP request")
-
-			assert.Equal(t, tc.wants.statusCode, resp.StatusCode(),
+			assert.Equal(t, tc.wants.statusCode, respRec.Code,
 				"Response code didn't match expected")
 
-			assert.Equal(t, tc.wants.contentType, resp.Header().Get("Content-Type"),
-				"Content-Type didn't match expected")
+			assert.Equal(t, tc.wants.contentType, respRec.Header().Get("Content-Type"))
 
-			if tc.wants.response != "" {
-				assert.Equal(t, tc.wants.response, string(resp.Body()),
+			if tc.wants.body == "should be no empty body" {
+				assert.NotEmpty(t, respRec.Body,
+					"Response body should be not empty")
+			} else {
+				assert.Equal(t, tc.wants.body, fmt.Sprintf("%v", respRec.Body),
 					"Response body didn't match expected")
 			}
 

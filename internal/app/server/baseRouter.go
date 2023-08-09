@@ -1,14 +1,13 @@
-package router
+package server
 
 import "github.com/go-chi/chi/v5"
 
 type storage interface {
-	Encode() string
-	Decode() string
+	Encode(url string) string
+	Decode(shortUrl string) (string, bool)
 }
 
 type config interface {
-	GetAdres() string
 	GetShorterURL() string
 }
 
@@ -24,7 +23,10 @@ func NewBaseRouter(db storage, cfg config) *baseRouter {
 	}
 }
 
-func (r *baseRouter) Route() *chi.Mux {
+func (br *baseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/{url_id}", a.DecodeURL)
+	router.Get("/{url_id}", br.decodeURL)
+	router.Post("/", br.encodeURL)
+
+	return router
 }

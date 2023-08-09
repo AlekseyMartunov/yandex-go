@@ -1,20 +1,18 @@
 package main
 
 import (
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app"
-	"github.com/go-chi/chi/v5"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/server"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 	"net/http"
 )
 
 func main() {
-	a := app.NewApp()
-	a.GetConfig()
+	s := storage.NewStorage()
+	c := config.NewConfig()
+	r := server.NewBaseRouter(s, c)
 
-	r := chi.NewRouter()
-	r.Get("/{url_id}", a.DecodeURL)
-	r.Post("/", a.EncodeURL)
-
-	err := http.ListenAndServe(a.GetAdres(), r)
+	err := http.ListenAndServe(c.GetAddress(), r.Route())
 	if err != nil {
 		panic(err)
 	}

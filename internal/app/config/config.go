@@ -1,35 +1,41 @@
-package app
+package config
 
 import (
 	"flag"
 	"os"
 )
 
-type netAdress struct {
+type config struct {
 	addr     string `env:"SERVER_ADDRESS"`
 	baseHost string `env:"BASE_URL"`
 }
 
-func (a *app) GetConfig() {
+func NewConfig() *config {
+	c := config{}
+	c.getConfig()
+	return &c
+}
 
-	flag.StringVar(&a.cfg.addr, "a", "127.0.0.1:8080", "Адрес для запуска приложения")
-	flag.StringVar(&a.cfg.baseHost, "b", "http://127.0.0.1:8080", "Базовый адрес сокращенного URL")
+func (c *config) getConfig() {
+
+	flag.StringVar(&c.addr, "a", "127.0.0.1:8080", "Адрес для запуска приложения")
+	flag.StringVar(&c.baseHost, "b", "http://127.0.0.1:8080", "Базовый адрес сокращенного URL")
 
 	flag.Parse()
 
 	if val, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
-		a.cfg.addr = val
+		c.addr = val
 	}
 
 	if val, ok := os.LookupEnv("BASE_URL"); ok {
-		a.cfg.baseHost = val
+		c.baseHost = val
 	}
 }
 
-func (a *app) GetAdres() string {
-	return a.cfg.addr
+func (c *config) GetAddress() string {
+	return c.addr
 }
 
-func (a *app) GetShorterURL() string {
-	return a.cfg.baseHost + "/"
+func (c *config) GetShorterURL() string {
+	return c.baseHost + "/"
 }

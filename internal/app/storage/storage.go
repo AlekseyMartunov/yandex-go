@@ -1,4 +1,4 @@
-package app
+package storage
 
 import (
 	"math/rand"
@@ -6,21 +6,31 @@ import (
 
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func (a *app) encode(url string) string {
+type storage struct {
+	storage map[string]string
+}
+
+func NewStorage() *storage {
+	s := storage{}
+	s.storage = make(map[string]string)
+	return &s
+}
+
+func (s *storage) Encode(url string) string {
 	id := generateRandomID(10)
-	_, ok := a.storage[id]
+	_, ok := s.storage[id]
 
 	for ok {
 		id := generateRandomID(10)
-		_, ok = a.storage[id]
+		_, ok = s.storage[id]
 	}
 
-	a.storage[id] = url
+	s.storage[id] = url
 	return id
 }
 
-func (a *app) decode(id string) (string, bool) {
-	url, ok := a.storage[id]
+func (s *storage) Decode(id string) (string, bool) {
+	url, ok := s.storage[id]
 	return url, ok
 }
 
