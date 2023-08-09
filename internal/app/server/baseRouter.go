@@ -4,7 +4,7 @@ import "github.com/go-chi/chi/v5"
 
 type storage interface {
 	Encode(url string) string
-	Decode(shortUrl string) (string, bool)
+	Decode(shortURL string) (string, bool)
 }
 
 type config interface {
