@@ -12,11 +12,10 @@ type config struct {
 
 func NewConfig() *config {
 	c := config{}
-	c.getConfig()
 	return &c
 }
 
-func (c *config) getConfig() {
+func (c *config) GetConfig() {
 
 	flag.StringVar(&c.addr, "a", "127.0.0.1:8080", "Адрес для запуска приложения")
 	flag.StringVar(&c.baseHost, "b", "http://127.0.0.1:8080", "Базовый адрес сокращенного URL")

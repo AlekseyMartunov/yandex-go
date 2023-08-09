@@ -10,6 +10,7 @@ import (
 func main() {
 	s := storage.NewStorage()
 	c := config.NewConfig()
+	c.GetConfig()
 	r := server.NewBaseRouter(s, c)
 
 	err := http.ListenAndServe(c.GetAddress(), r.Route())
