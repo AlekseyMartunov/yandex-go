@@ -20,8 +20,8 @@ type ShortURLHandler struct {
 	cfg     config
 }
 
-func NewShortURLHandler(e encoder, cfg config) *ShortURLHandler {
-	return &ShortURLHandler{encoder: e, cfg: cfg}
+func NewShortURLHandler(e encoder, c config) *ShortURLHandler {
+	return &ShortURLHandler{encoder: e, cfg: c}
 }
 
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {

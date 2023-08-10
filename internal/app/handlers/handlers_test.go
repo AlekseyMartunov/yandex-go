@@ -2,6 +2,7 @@ package handlers
 
 import (
 	config2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
+	encoder2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
 	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,8 @@ func TestShortUrlHandler_EncodeURL(t *testing.T) {
 	s := storage2.NewStorage()
 	c := config2.NewConfig()
 	//c.GetConfig()
-	h := NewShortURLHandler(s, c)
+	e := encoder2.NewEncoder(s)
+	h := NewShortURLHandler(e, c)
 
 	handler := http.HandlerFunc(h.EncodeURL)
 	srv := httptest.NewServer(handler)
@@ -84,7 +86,8 @@ func TestShortUrlHandler_DecodeURL(t *testing.T) {
 	s := storage2.NewStorage()
 	c := config2.NewConfig()
 	//c.GetConfig()
-	h := NewShortURLHandler(s, c)
+	e := encoder2.NewEncoder(s)
+	h := NewShortURLHandler(e, c)
 
 	handler := http.HandlerFunc(h.DecodeURL)
 	srv := httptest.NewServer(handler)
