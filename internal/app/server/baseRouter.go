@@ -5,16 +5,16 @@ import (
 	"net/http"
 )
 
-type ShortUrlHandler interface {
+type ShortURLHandler interface {
 	EncodeURL(http.ResponseWriter, *http.Request)
 	DecodeURL(http.ResponseWriter, *http.Request)
 }
 
 type BaseRouter struct {
-	handler ShortUrlHandler
+	handler ShortURLHandler
 }
 
-func NewBaseRouter(h ShortUrlHandler) *BaseRouter {
+func NewBaseRouter(h ShortURLHandler) *BaseRouter {
 	return &BaseRouter{handler: h}
 }
 
