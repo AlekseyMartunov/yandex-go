@@ -12,7 +12,7 @@ func main() {
 	s := storage.NewStorage()
 	c := config.NewConfig()
 	c.GetConfig()
-	h := handlers.NewShortUrlHandler(s, c)
+	h := handlers.NewShortURLHandler(s, c)
 	r := server.NewBaseRouter(h)
 
 	err := http.ListenAndServe(c.GetAddress(), r.Route())

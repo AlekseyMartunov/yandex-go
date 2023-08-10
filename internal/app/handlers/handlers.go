@@ -15,16 +15,16 @@ type config interface {
 	GetShorterURL() string
 }
 
-type ShortUrlHandler struct {
+type ShortURLHandler struct {
 	storage storage
 	cfg     config
 }
 
-func NewShortUrlHandler(storage storage, cfg config) *ShortUrlHandler {
-	return &ShortUrlHandler{storage: storage, cfg: cfg}
+func NewShortURLHandler(storage storage, cfg config) *ShortURLHandler {
+	return &ShortURLHandler{storage: storage, cfg: cfg}
 }
 
-func (s *ShortUrlHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
+func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/plain")
 	data, err := io.ReadAll(r.Body)
 	if err != nil || string(data) == "" {
@@ -37,7 +37,7 @@ func (s *ShortUrlHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(id))
 }
 
-func (s *ShortUrlHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
+func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "url_id")
 	url, ok := s.storage.Decode(id)
 

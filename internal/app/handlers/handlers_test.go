@@ -14,7 +14,7 @@ func TestShortUrlHandler_EncodeURL(t *testing.T) {
 	s := storage2.NewStorage()
 	c := config2.NewConfig()
 	//c.GetConfig()
-	h := NewShortUrlHandler(s, c)
+	h := NewShortURLHandler(s, c)
 
 	handler := http.HandlerFunc(h.EncodeURL)
 	srv := httptest.NewServer(handler)
@@ -84,7 +84,7 @@ func TestShortUrlHandler_DecodeURL(t *testing.T) {
 	s := storage2.NewStorage()
 	c := config2.NewConfig()
 	//c.GetConfig()
-	h := NewShortUrlHandler(s, c)
+	h := NewShortURLHandler(s, c)
 
 	handler := http.HandlerFunc(h.DecodeURL)
 	srv := httptest.NewServer(handler)
