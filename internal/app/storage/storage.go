@@ -6,17 +6,15 @@ import (
 
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-type storage struct {
+type Storage struct {
 	storage map[string]string
 }
 
-func NewStorage() *storage {
-	s := storage{}
-	s.storage = make(map[string]string)
-	return &s
+func NewStorage() *Storage {
+	return &Storage{storage: make(map[string]string)}
 }
 
-func (s *storage) Encode(url string) string {
+func (s *Storage) Encode(url string) string {
 	id := generateRandomID(10)
 	_, ok := s.storage[id]
 
@@ -29,7 +27,7 @@ func (s *storage) Encode(url string) string {
 	return id
 }
 
-func (s *storage) Decode(id string) (string, bool) {
+func (s *Storage) Decode(id string) (string, bool) {
 	url, ok := s.storage[id]
 	return url, ok
 }

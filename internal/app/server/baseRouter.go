@@ -1,32 +1,27 @@
 package server
 
-import "github.com/go-chi/chi/v5"
+import (
+	"github.com/go-chi/chi/v5"
+	"net/http"
+)
 
-type storage interface {
-	Encode(url string) string
-	Decode(shortURL string) (string, bool)
+type ShortUrlHandler interface {
+	EncodeURL(http.ResponseWriter, *http.Request)
+	DecodeURL(http.ResponseWriter, *http.Request)
 }
 
-type config interface {
-	GetShorterURL() string
+type BaseRouter struct {
+	handler ShortUrlHandler
 }
 
-type baseRouter struct {
-	db  storage
-	cfg config
+func NewBaseRouter(h ShortUrlHandler) *BaseRouter {
+	return &BaseRouter{handler: h}
 }
 
-func NewBaseRouter(db storage, cfg config) *baseRouter {
-	return &baseRouter{
-		db:  db,
-		cfg: cfg,
-	}
-}
-
-func (br *baseRouter) Route() *chi.Mux {
+func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/{url_id}", br.decodeURL)
-	router.Post("/", br.encodeURL)
+	router.Get("/{url_id}", br.handler.DecodeURL)
+	router.Post("/", br.handler.EncodeURL)
 
 	return router
 }
