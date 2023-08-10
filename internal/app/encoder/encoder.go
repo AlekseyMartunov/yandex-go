@@ -6,16 +6,16 @@ import (
 
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-type Storage interface {
+type storage interface {
 	Save(string, string)
 	Get(string) (string, bool)
 }
 
 type Encoder struct {
-	storage Storage
+	storage storage
 }
 
-func NewEncoder(s Storage) *Encoder {
+func NewEncoder(s storage) *Encoder {
 	return &Encoder{storage: s}
 }
 

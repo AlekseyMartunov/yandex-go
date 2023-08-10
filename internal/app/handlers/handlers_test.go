@@ -1,14 +1,16 @@
 package handlers
 
 import (
-	config2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
-	encoder2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
-	"github.com/go-resty/resty/v2"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/stretchr/testify/assert"
+
+	config2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
+	encoder2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 )
 
 func TestShortUrlHandler_EncodeURL(t *testing.T) {

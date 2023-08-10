@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	"github.com/go-chi/chi/v5"
 	"io"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type encoder interface {

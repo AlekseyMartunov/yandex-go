@@ -1,12 +1,13 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/server"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
-	"net/http"
 )
 
 func main() {
