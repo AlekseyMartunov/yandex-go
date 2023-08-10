@@ -6,9 +6,9 @@ import (
 	"net/http"
 )
 
-type storage interface {
-	Encode(url string) string
-	Decode(shortURL string) (string, bool)
+type encoder interface {
+	Encode(string) string
+	Decode(string) (string, bool)
 }
 
 type config interface {
@@ -16,12 +16,12 @@ type config interface {
 }
 
 type ShortURLHandler struct {
-	storage storage
+	encoder encoder
 	cfg     config
 }
 
-func NewShortURLHandler(storage storage, cfg config) *ShortURLHandler {
-	return &ShortURLHandler{storage: storage, cfg: cfg}
+func NewShortURLHandler(e encoder, cfg config) *ShortURLHandler {
+	return &ShortURLHandler{encoder: e, cfg: cfg}
 }
 
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
@@ -32,14 +32,14 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := s.cfg.GetShorterURL() + s.storage.Encode(string(data))
+	id := s.cfg.GetShorterURL() + s.encoder.Encode(string(data))
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(id))
 }
 
 func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "url_id")
-	url, ok := s.storage.Decode(id)
+	url, ok := s.encoder.Decode(id)
 
 	if !ok {
 		http.Error(w, "Empty key", http.StatusBadRequest)
