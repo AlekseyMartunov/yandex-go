@@ -1,12 +1,21 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
-var logger *logrus.Logger = &logrus.Logger{}
+type Logger struct {
+	defaultLogger *logrus.Logger
+}
+
+func NewLogger() *Logger {
+	return &Logger{}
+}
+
+var logger Logger = Logger{defaultLogger: &logrus.Logger{}}
 
 type responseData struct {
 	status int
@@ -29,10 +38,10 @@ func (l *loggingResponseWriter) WriteHeader(statusCode int) {
 	l.responseData.status = statusCode
 }
 
-func Initialize(level logrus.Level) {
+func init() {
 	l := logrus.New()
-	l.SetLevel(level)
-	logger = l
+	l.SetLevel(logrus.InfoLevel)
+	logger.defaultLogger = l
 }
 
 func WithLogging(next http.HandlerFunc) http.HandlerFunc {
@@ -47,7 +56,7 @@ func WithLogging(next http.HandlerFunc) http.HandlerFunc {
 
 		start := time.Now()
 		next.ServeHTTP(&lrw, r)
-		logger.Infof("METHOD: %s, URL: %s, TIME %dµs, STATUS: %d, SIZE: %d",
+		logger.defaultLogger.Infof("METHOD: %s, URL: %s, TIME %dµs, STATUS: %d, SIZE: %d",
 			r.Method, r.RequestURI, time.Since(start)/1000, lrw.responseData.status, lrw.responseData.size)
 	}
 }
