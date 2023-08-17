@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/logger"
 )
 
 type ShortURLHandler interface {
@@ -21,8 +23,8 @@ func NewBaseRouter(h ShortURLHandler) *BaseRouter {
 
 func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/{url_id}", br.handler.DecodeURL)
-	router.Post("/", br.handler.EncodeURL)
+	router.Get("/{url_id}", logger.WithLogging(br.handler.DecodeURL))
+	router.Post("/", logger.WithLogging(br.handler.EncodeURL))
 
 	return router
 }
