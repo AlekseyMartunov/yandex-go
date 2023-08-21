@@ -11,11 +11,17 @@ type Logger struct {
 	defaultLogger *logrus.Logger
 }
 
-func NewLogger() *Logger {
-	return &Logger{}
-}
+func NewLogger(level string) *Logger {
+	l := logrus.New()
+	lvl, err := logrus.ParseLevel(level)
 
-var logger Logger = Logger{defaultLogger: &logrus.Logger{}}
+	if err != nil {
+		panic(err)
+	}
+
+	l.SetLevel(lvl)
+	return &Logger{defaultLogger: l}
+}
 
 type responseData struct {
 	status int
@@ -38,13 +44,7 @@ func (l *loggingResponseWriter) WriteHeader(statusCode int) {
 	l.responseData.status = statusCode
 }
 
-func init() {
-	l := logrus.New()
-	l.SetLevel(logrus.InfoLevel)
-	logger.defaultLogger = l
-}
-
-func WithLogging(next http.HandlerFunc) http.HandlerFunc {
+func (l *Logger) WithLogging(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		responseData := &responseData{}
@@ -56,7 +56,7 @@ func WithLogging(next http.HandlerFunc) http.HandlerFunc {
 
 		start := time.Now()
 		next.ServeHTTP(&lrw, r)
-		logger.defaultLogger.Infof("METHOD: %s, URL: %s, TIME %dµs, STATUS: %d, SIZE: %d",
+		l.defaultLogger.Infof("METHOD: %s, URL: %s, TIME %dµs, STATUS: %d, SIZE: %d",
 			r.Method, r.RequestURI, time.Since(start)/1000, lrw.responseData.status, lrw.responseData.size)
 	}
 }
