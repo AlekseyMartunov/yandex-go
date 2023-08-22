@@ -21,7 +21,7 @@ type api struct {
 }
 
 type jsonRequest struct {
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 
 type jsonResponse struct {
@@ -53,7 +53,7 @@ func (a *api) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JResp := jsonResponse{Result: a.cfg.GetShorterURL() + a.encoder.Encode(jReq.Url)}
+	JResp := jsonResponse{Result: a.cfg.GetShorterURL() + a.encoder.Encode(jReq.URL)}
 
 	w.WriteHeader(http.StatusCreated)
 
