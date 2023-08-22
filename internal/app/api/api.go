@@ -24,6 +24,10 @@ type jsonRequest struct {
 	Url string `json:"url"`
 }
 
+type jsonResponse struct {
+	Result string `json:"result"`
+}
+
 func NewApiHandlers(e encoder, c config) *api {
 	return &api{encoder: e, cfg: c}
 }
@@ -49,8 +53,15 @@ func (a *api) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := a.encoder.Encode(jReq.Url)
+	JResp := jsonResponse{Result: a.cfg.GetShorterURL() + a.encoder.Encode(jReq.Url)}
+
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(a.cfg.GetShorterURL() + result))
+
+	res, err := json.Marshal(JResp)
+
+	if err != nil {
+		panic(err)
+	}
+	w.Write(res)
 
 }
