@@ -15,19 +15,29 @@ type Logger interface {
 	WithLogging(next http.HandlerFunc) http.HandlerFunc
 }
 
-type BaseRouter struct {
-	handler ShortURLHandler
-	logger  Logger
+type ApiHandler interface {
+	EncodeAPI(w http.ResponseWriter, r *http.Request)
 }
 
-func NewBaseRouter(h ShortURLHandler, l Logger) *BaseRouter {
-	return &BaseRouter{handler: h, logger: l}
+type BaseRouter struct {
+	handler    ShortURLHandler
+	logger     Logger
+	apiHandler ApiHandler
+}
+
+func NewBaseRouter(h ShortURLHandler, ah ApiHandler, l Logger) *BaseRouter {
+	return &BaseRouter{
+		handler:    h,
+		apiHandler: ah,
+		logger:     l,
+	}
 }
 
 func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/{url_id}", br.logger.WithLogging(br.handler.DecodeURL))
 	router.Post("/", br.logger.WithLogging(br.handler.EncodeURL))
+	router.Post("/api/shorten", br.logger.WithLogging(br.apiHandler.EncodeAPI))
 
 	return router
 }
