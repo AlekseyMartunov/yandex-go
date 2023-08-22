@@ -15,17 +15,17 @@ type Logger interface {
 	WithLogging(next http.HandlerFunc) http.HandlerFunc
 }
 
-type ApiHandler interface {
+type APIHandler interface {
 	EncodeAPI(w http.ResponseWriter, r *http.Request)
 }
 
 type BaseRouter struct {
 	handler    ShortURLHandler
 	logger     Logger
-	apiHandler ApiHandler
+	apiHandler APIHandler
 }
 
-func NewBaseRouter(h ShortURLHandler, ah ApiHandler, l Logger) *BaseRouter {
+func NewBaseRouter(h ShortURLHandler, ah APIHandler, l Logger) *BaseRouter {
 	return &BaseRouter{
 		handler:    h,
 		apiHandler: ah,
