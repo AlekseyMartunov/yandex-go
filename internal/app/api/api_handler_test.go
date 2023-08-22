@@ -17,7 +17,7 @@ func TestApiHandlers(t *testing.T) {
 	c := config2.NewConfig()
 
 	e := encoder2.NewEncoder(s)
-	h := NewApiHandlers(e, c)
+	h := NewAPIHandlers(e, c)
 
 	handler := http.HandlerFunc(h.EncodeAPI)
 	srv := httptest.NewServer(handler)

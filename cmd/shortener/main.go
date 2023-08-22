@@ -20,7 +20,7 @@ func main() {
 	e := encoder.NewEncoder(s)
 
 	h := handlers.NewShortURLHandler(e, c)
-	ah := api.NewApiHandlers(e, c)
+	ah := api.NewAPIHandlers(e, c)
 	l := logger.NewLogger("info")
 	r := server.NewBaseRouter(h, ah, l)
 
@@ -28,5 +28,4 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 }

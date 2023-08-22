@@ -28,7 +28,7 @@ type jsonResponse struct {
 	Result string `json:"result"`
 }
 
-func NewApiHandlers(e encoder, c config) *api {
+func NewAPIHandlers(e encoder, c config) *api {
 	return &api{encoder: e, cfg: c}
 }
 
