@@ -1,7 +1,9 @@
 package encoder
 
 import (
+	"fmt"
 	"math/rand"
+	"time"
 )
 
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -9,6 +11,10 @@ var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
 type storage interface {
 	Save(key, val string) error
 	Get(string) (string, bool)
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }
 
 type Encoder struct {
@@ -20,13 +26,16 @@ func NewEncoder(s storage) *Encoder {
 }
 
 func (e *Encoder) Encode(url string) string {
-	id := generateRandomID(10)
+	id := generateRandomID(15)
 	_, ok := e.storage.Get(id)
 
 	for ok {
 		id := generateRandomID(10)
 		_, ok = e.storage.Get(id)
 	}
+
+	_, ok = e.storage.Get("rfBd56ti2S")
+	fmt.Println("OK", ok)
 
 	err := e.storage.Save(id, url)
 	if err != nil {

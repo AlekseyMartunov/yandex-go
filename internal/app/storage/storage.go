@@ -30,11 +30,11 @@ func NewStorage(filePath string) (*Storage, error) {
 	}
 
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	defer file.Close()
 
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
 	fl := &fileLine{}
 	scanner := bufio.NewScanner(file)
@@ -71,11 +71,12 @@ func (s *Storage) Save(key, val string) error {
 	data = append(data, '\n')
 
 	file, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	defer file.Close()
 
 	if err != nil {
 		return err
 	}
+
+	defer file.Close()
 
 	_, err = file.Write(data)
 
@@ -89,11 +90,11 @@ func (s *Storage) Get(key string) (string, bool) {
 	}
 
 	file, err := os.OpenFile(s.filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	defer file.Close()
 
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 
