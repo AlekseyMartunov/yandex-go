@@ -44,8 +44,8 @@ func (l *loggingResponseWriter) WriteHeader(statusCode int) {
 	l.responseData.status = statusCode
 }
 
-func (l *Logger) WithLogging(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (l *Logger) WithLogging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		responseData := &responseData{}
 
@@ -58,5 +58,5 @@ func (l *Logger) WithLogging(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(&lrw, r)
 		l.defaultLogger.Infof("METHOD: %s, URL: %s, TIME %dµs, STATUS: %d, SIZE: %d",
 			r.Method, r.RequestURI, time.Since(start)/1000, lrw.responseData.status, lrw.responseData.size)
-	}
+	})
 }

@@ -11,33 +11,30 @@ type ShortURLHandler interface {
 	DecodeURL(w http.ResponseWriter, r *http.Request)
 }
 
-type Logger interface {
-	WithLogging(next http.HandlerFunc) http.HandlerFunc
-}
-
 type APIHandler interface {
 	EncodeAPI(w http.ResponseWriter, r *http.Request)
 }
 
 type BaseRouter struct {
 	handler    ShortURLHandler
-	logger     Logger
 	apiHandler APIHandler
+	middleware []func(handler http.Handler) http.Handler
 }
 
-func NewBaseRouter(h ShortURLHandler, ah APIHandler, l Logger) *BaseRouter {
+func NewBaseRouter(h ShortURLHandler, ah APIHandler, m ...func(handler http.Handler) http.Handler) *BaseRouter {
 	return &BaseRouter{
 		handler:    h,
 		apiHandler: ah,
-		logger:     l,
+		middleware: m,
 	}
 }
 
 func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
-	router.Get("/{url_id}", br.logger.WithLogging(br.handler.DecodeURL))
-	router.Post("/", br.logger.WithLogging(br.handler.EncodeURL))
-	router.Post("/api/shorten", br.logger.WithLogging(br.apiHandler.EncodeAPI))
+	router.Use(br.middleware...)
+	router.Get("/{url_id}", br.handler.DecodeURL)
+	router.Post("/", br.handler.EncodeURL)
+	router.Post("/api/shorten", br.apiHandler.EncodeAPI)
 
 	return router
 }
