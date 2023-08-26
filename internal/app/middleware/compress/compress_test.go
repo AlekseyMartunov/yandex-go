@@ -30,23 +30,6 @@ func convert(s string) []byte {
 	return buf.Bytes()
 }
 
-func deconvert(b []byte) string {
-	buf := bytes.NewBuffer(b)
-	r, err := gzip.NewReader(buf)
-
-	defer r.Close()
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	res, err := ioutil.ReadAll(r)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return string(res)
-}
-
 func TestCompress(t *testing.T) {
 	srv := httptest.NewServer(Compress(http.HandlerFunc(testHelpHandler)))
 	defer srv.Close()
