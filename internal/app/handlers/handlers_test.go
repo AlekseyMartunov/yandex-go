@@ -14,7 +14,11 @@ import (
 )
 
 func TestShortUrlHandler_EncodeURL(t *testing.T) {
-	s := storage2.NewStorage()
+	s, err := storage2.NewStorage("")
+	if err != nil {
+		panic(err)
+	}
+
 	c := config2.NewConfig()
 	//c.GetConfig()
 	e := encoder2.NewEncoder(s)
@@ -85,7 +89,10 @@ func TestShortUrlHandler_EncodeURL(t *testing.T) {
 }
 
 func TestShortUrlHandler_DecodeURL(t *testing.T) {
-	s := storage2.NewStorage()
+	s, err := storage2.NewStorage("")
+	if err != nil {
+		panic(err)
+	}
 	c := config2.NewConfig()
 	//c.GetConfig()
 	e := encoder2.NewEncoder(s)
