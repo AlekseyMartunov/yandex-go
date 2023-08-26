@@ -1,7 +1,6 @@
 package encoder
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -33,9 +32,6 @@ func (e *Encoder) Encode(url string) string {
 		id := generateRandomID(10)
 		_, ok = e.storage.Get(id)
 	}
-
-	_, ok = e.storage.Get("rfBd56ti2S")
-	fmt.Println("OK", ok)
 
 	err := e.storage.Save(id, url)
 	if err != nil {

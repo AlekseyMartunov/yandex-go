@@ -3,7 +3,6 @@ package storage
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -104,7 +103,6 @@ func (s *Storage) Get(key string) (string, bool) {
 
 		if fl.ShortURL == key {
 			return fl.OriginalURL, true
-			fmt.Println(fl)
 		}
 	}
 
