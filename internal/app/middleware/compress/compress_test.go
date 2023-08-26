@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func testHelpHandler(w http.ResponseWriter, r *http.Request) {
-	body, error := ioutil.ReadAll(r.Body)
+	body, error := io.ReadAll(r.Body)
 	if error != nil {
 		fmt.Println(error)
 	}
