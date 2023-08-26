@@ -11,7 +11,10 @@ import (
 
 func TestStorage(t *testing.T) {
 
-	s := storage2.NewStorage()
+	s, err := storage2.NewStorage("")
+	if err != nil {
+		panic(err)
+	}
 	e := NewEncoder(s)
 
 	testCase := []string{

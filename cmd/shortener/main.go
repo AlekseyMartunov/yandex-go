@@ -17,7 +17,10 @@ func main() {
 	c := config.NewConfig()
 	c.GetConfig()
 
-	s := storage.NewStorage()
+	s, err := storage.NewStorage(c.GetFileStoragePath())
+	if err != nil {
+		panic(err)
+	}
 	e := encoder.NewEncoder(s)
 
 	h := handlers.NewShortURLHandler(e, c)
@@ -25,7 +28,7 @@ func main() {
 	l := logger.NewLogger("info")
 	r := server.NewBaseRouter(h, ah, l.WithLogging, compress.Compress)
 
-	err := http.ListenAndServe(c.GetAddress(), r.Route())
+	err = http.ListenAndServe(c.GetAddress(), r.Route())
 	if err != nil {
 		panic(err)
 	}
