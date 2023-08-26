@@ -14,7 +14,7 @@ type fileLine struct {
 
 type Storage struct {
 	filePath        string
-	currentId       int
+	currentID       int
 	isFileAvailable bool
 	data            map[string]string
 }
@@ -22,7 +22,7 @@ type Storage struct {
 func NewStorage(filePath string) (*Storage, error) {
 	if filePath == "" {
 		return &Storage{
-			currentId:       1,
+			currentID:       1,
 			data:            make(map[string]string),
 			isFileAvailable: false,
 		}, nil
@@ -42,7 +42,7 @@ func NewStorage(filePath string) (*Storage, error) {
 	}
 
 	return &Storage{
-		currentId:       fl.Uuid + 1,
+		currentID:       fl.Uuid + 1,
 		filePath:        filePath,
 		isFileAvailable: true,
 	}, nil
@@ -55,12 +55,12 @@ func (s *Storage) Save(key, val string) error {
 	}
 
 	fl := fileLine{
-		Uuid:        s.currentId,
+		Uuid:        s.currentID,
 		ShortURL:    key,
 		OriginalURL: val,
 	}
 
-	s.currentId++
+	s.currentID++
 
 	data, err := json.Marshal(fl)
 	if err != nil {
