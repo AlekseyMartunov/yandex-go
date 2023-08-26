@@ -3,11 +3,12 @@ package storage
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
 type fileLine struct {
-	Uuid        int    `json:"uuid"`
+	UUID        int    `json:"uuid"`
 	ShortURL    string `json:"short_url"`
 	OriginalURL string `json:"original_url"`
 }
@@ -42,7 +43,7 @@ func NewStorage(filePath string) (*Storage, error) {
 	}
 
 	return &Storage{
-		currentID:       fl.Uuid + 1,
+		currentID:       fl.UUID + 1,
 		filePath:        filePath,
 		isFileAvailable: true,
 	}, nil
@@ -55,7 +56,7 @@ func (s *Storage) Save(key, val string) error {
 	}
 
 	fl := fileLine{
-		Uuid:        s.currentID,
+		UUID:        s.currentID,
 		ShortURL:    key,
 		OriginalURL: val,
 	}
@@ -102,6 +103,7 @@ func (s *Storage) Get(key string) (string, bool) {
 
 		if fl.ShortURL == key {
 			return fl.OriginalURL, true
+			fmt.Println(fl)
 		}
 	}
 
