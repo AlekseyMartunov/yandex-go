@@ -1,12 +1,14 @@
 package compress
 
 import (
+	"bytes"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
 )
+
+var gzipWriter = gzip.NewWriter(&bytes.Buffer{})
 
 type compressWriter struct {
 	w  http.ResponseWriter
@@ -14,9 +16,10 @@ type compressWriter struct {
 }
 
 func newCompressWriter(w http.ResponseWriter) *compressWriter {
+	gzipWriter.Reset(w)
 	return &compressWriter{
 		w:  w,
-		zw: gzip.NewWriter(w),
+		zw: gzipWriter,
 	}
 }
 
@@ -86,7 +89,6 @@ func Compress(h http.Handler) http.Handler {
 			cr, err := newCompressReader(r.Body)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				fmt.Println(err)
 				return
 			}
 
@@ -95,5 +97,6 @@ func Compress(h http.Handler) http.Handler {
 		}
 
 		h.ServeHTTP(ow, r)
+
 	})
 }
