@@ -3,32 +3,29 @@ package main
 import (
 	"net/http"
 
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/api"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/server"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 )
 
 func main() {
-	c := config.NewConfig()
-	c.GetConfig()
+	cfg := config.NewConfig()
+	cfg.GetConfig()
 
-	s, err := storage.NewStorage(c.GetFileStoragePath())
-	if err != nil {
-		panic(err)
-	}
-	e := encoder.NewEncoder(s)
+	storage := storage.NewStorage(cfg.GetFileStoragePath())
 
-	h := handlers.NewShortURLHandler(e, c)
-	ah := api.NewAPIHandlers(e, c)
-	l := logger.NewLogger("info")
-	r := server.NewBaseRouter(h, ah, l.WithLogging, compress.Compress)
+	encoder := encoder.NewEncoder(storage)
 
-	err = http.ListenAndServe(c.GetAddress(), r.Route())
+	handler := handlers.NewShortURLHandler(encoder, cfg)
+
+	log := logger.NewLogger("info")
+	router := router.NewBaseRouter(handler, log.WithLogging, compress.Compress)
+
+	err := http.ListenAndServe(cfg.GetAddress(), router.Route())
 	if err != nil {
 		panic(err)
 	}

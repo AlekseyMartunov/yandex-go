@@ -1,24 +1,10 @@
-package api
+package handlers
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 )
-
-type encoder interface {
-	Encode(string) string
-	Decode(string) (string, bool)
-}
-
-type config interface {
-	GetShorterURL() string
-}
-
-type api struct {
-	encoder encoder
-	cfg     config
-}
 
 type jsonRequest struct {
 	URL string `json:"url"`
@@ -28,11 +14,7 @@ type jsonResponse struct {
 	Result string `json:"result"`
 }
 
-func NewAPIHandlers(e encoder, c config) *api {
-	return &api{encoder: e, cfg: c}
-}
-
-func (a *api) EncodeAPI(w http.ResponseWriter, r *http.Request) {
+func (s *ShortURLHandler) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Header.Get("Content-Type") != "application/json" {
@@ -53,11 +35,11 @@ func (a *api) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	JResp := jsonResponse{Result: a.cfg.GetShorterURL() + a.encoder.Encode(jReq.URL)}
+	jResp := jsonResponse{Result: s.cfg.GetShorterURL() + s.encoder.Encode(jReq.URL)}
 
 	w.WriteHeader(http.StatusCreated)
 
-	res, err := json.Marshal(JResp)
+	res, err := json.Marshal(jResp)
 
 	if err != nil {
 		panic(err)

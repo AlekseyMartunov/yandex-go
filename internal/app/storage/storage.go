@@ -4,7 +4,25 @@ import (
 	"bufio"
 	"encoding/json"
 	"os"
+	"sync"
 )
+
+type Storage interface {
+	Save(key, val string) error
+	Get(key string) (string, bool)
+}
+
+type MapStorage struct {
+	data map[string]string
+	sync.Mutex
+}
+
+type FileStorage struct {
+	filePath  string
+	data      map[string]string
+	currentID int
+	sync.Mutex
+}
 
 type fileLine struct {
 	UUID        int    `json:"uuid"`
@@ -12,47 +30,35 @@ type fileLine struct {
 	OriginalURL string `json:"original_url"`
 }
 
-type Storage struct {
-	filePath        string
-	currentID       int
-	isFileAvailable bool
-	data            map[string]string
-}
-
-func NewStorage(filePath string) (*Storage, error) {
-	if filePath == "" {
-		return &Storage{
-			currentID:       1,
-			data:            make(map[string]string),
-			isFileAvailable: false,
-		}, nil
-	}
+func NewStorage(filePath string) Storage {
 
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	if err != nil {
-		panic(err)
+		return &MapStorage{data: make(map[string]string)}
 	}
 	defer file.Close()
+
+	data := make(map[string]string)
 
 	fl := &fileLine{}
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		json.Unmarshal(scanner.Bytes(), fl)
+		data[fl.ShortURL] = fl.OriginalURL
+	}
+	s := FileStorage{
+		filePath:  filePath,
+		data:      data,
+		currentID: fl.UUID + 1,
 	}
 
-	return &Storage{
-		currentID:       fl.UUID + 1,
-		filePath:        filePath,
-		isFileAvailable: true,
-	}, nil
+	return &s
 }
 
-func (s *Storage) Save(key, val string) error {
-	if !s.isFileAvailable {
-		s.data[key] = val
-		return nil
-	}
+func (s *FileStorage) Save(key, val string) error {
+
+	s.data[key] = val
 
 	fl := fileLine{
 		UUID:        s.currentID,
@@ -82,29 +88,17 @@ func (s *Storage) Save(key, val string) error {
 	return err
 }
 
-func (s *Storage) Get(key string) (string, bool) {
-	if !s.isFileAvailable {
-		val, ok := s.data[key]
-		return val, ok
-	}
+func (s *FileStorage) Get(key string) (string, bool) {
+	val, ok := s.data[key]
+	return val, ok
+}
 
-	file, err := os.OpenFile(s.filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+func (s *MapStorage) Save(key, val string) error {
+	s.data[key] = val
+	return nil
+}
 
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		fl := &fileLine{}
-		json.Unmarshal(scanner.Bytes(), fl)
-
-		if fl.ShortURL == key {
-			return fl.OriginalURL, true
-		}
-	}
-
-	return "", false
+func (s *MapStorage) Get(key string) (string, bool) {
+	val, ok := s.data[key]
+	return val, ok
 }
