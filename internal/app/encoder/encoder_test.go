@@ -11,7 +11,8 @@ import (
 
 func TestStorage(t *testing.T) {
 
-	s := storage2.NewStorage()
+	s := storage2.NewStorage("")
+
 	e := NewEncoder(s)
 
 	testCase := []string{
