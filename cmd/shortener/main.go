@@ -42,10 +42,10 @@ func runDB(driverName string, cfg *config.Config) *sql.DB {
 		panic(err)
 	}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
+	//err = db.Ping()
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	cfg.SetDataBaseStatus(true)
 
