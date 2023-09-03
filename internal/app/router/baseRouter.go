@@ -10,6 +10,7 @@ type ShortURLHandler interface {
 	EncodeURL(w http.ResponseWriter, r *http.Request)
 	DecodeURL(w http.ResponseWriter, r *http.Request)
 	EncodeAPI(w http.ResponseWriter, r *http.Request)
+	DataBaseStatus(w http.ResponseWriter, r *http.Request)
 }
 
 type BaseRouter struct {
@@ -27,7 +28,10 @@ func NewBaseRouter(h ShortURLHandler, m ...func(handler http.Handler) http.Handl
 func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(br.middleware...)
+
 	router.Get("/{url_id}", br.handler.DecodeURL)
+	router.Get("/ping", br.handler.DataBaseStatus)
+
 	router.Post("/", br.handler.EncodeURL)
 	router.Post("/api/shorten", br.handler.EncodeAPI)
 

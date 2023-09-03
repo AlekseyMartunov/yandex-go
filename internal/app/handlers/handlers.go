@@ -14,6 +14,7 @@ type encoder interface {
 
 type config interface {
 	GetShorterURL() string
+	GetDataBaseStatus() bool
 }
 
 type ShortURLHandler struct {

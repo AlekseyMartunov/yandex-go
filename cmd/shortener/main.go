@@ -1,7 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
@@ -16,6 +19,8 @@ func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
+	_ = runDB("pgx", cfg)
+
 	storage := storage.NewStorage(cfg.GetFileStoragePath())
 
 	encoder := encoder.NewEncoder(storage)
@@ -29,4 +34,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func runDB(driverName string, cfg *config.Config) *sql.DB {
+	db, err := sql.Open(driverName, cfg.GetDataBaseDSN())
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	cfg.SetDataBaseStatus(true)
+
+	defer db.Close()
+	return db
 }
