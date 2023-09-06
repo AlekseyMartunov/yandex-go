@@ -1,4 +1,4 @@
-package simpleStotage
+package simplestotage
 
 import (
 	"bufio"
