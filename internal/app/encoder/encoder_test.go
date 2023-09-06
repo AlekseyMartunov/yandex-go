@@ -2,11 +2,10 @@ package encoder
 
 import (
 	"fmt"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simple_stotage"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 )
 
 func TestStorage(t *testing.T) {

@@ -1,4 +1,4 @@
-package storage
+package simple_stotage
 
 import (
 	"bufio"
@@ -8,6 +8,12 @@ import (
 )
 
 type Storage interface {
+	Save(key, val string) error
+	Get(key string) (string, bool)
+	Close() error
+}
+
+type PostgresDB interface {
 	Save(key, val string) error
 	Get(key string) (string, bool)
 }
@@ -101,4 +107,12 @@ func (s *MapStorage) Save(key, val string) error {
 func (s *MapStorage) Get(key string) (string, bool) {
 	val, ok := s.data[key]
 	return val, ok
+}
+
+func (s *MapStorage) Close() error {
+	return nil
+}
+
+func (s *FileStorage) Close() error {
+	return nil
 }

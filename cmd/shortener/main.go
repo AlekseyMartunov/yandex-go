@@ -11,19 +11,19 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/postgres"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simple_stotage"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 )
 
 func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
-	_ = runDB("pgx", cfg)
+	db := createDB("pgx", cfg)
+	defer db.Close()
 
-	storage := storage.NewStorage(cfg.GetFileStoragePath())
-
-	encoder := encoder.NewEncoder(storage)
+	encoder := encoder.NewEncoder(db)
 
 	handler := handlers.NewShortURLHandler(encoder, cfg)
 
@@ -36,19 +36,23 @@ func main() {
 	}
 }
 
-func runDB(driverName string, cfg *config.Config) *sql.DB {
+func createDB(driverName string, cfg *config.Config) simple_stotage.Storage {
 	db, err := sql.Open(driverName, cfg.GetDataBaseDSN())
 	if err != nil {
-		panic(err)
+		return simple_stotage.NewStorage(cfg.GetFileStoragePath())
 	}
 
-	//err = db.Ping()
-	//if err != nil {
-	//	panic(err)
-	//}
+	err = db.Ping()
+	if err != nil {
+		return simple_stotage.NewStorage(cfg.GetFileStoragePath())
+	}
 
+	postgresDB := postgres.NewDB(db)
+	err = postgresDB.CreateTableURL()
+	if err != nil {
+		return simple_stotage.NewStorage(cfg.GetFileStoragePath())
+	}
 	cfg.SetDataBaseStatus(true)
 
-	defer db.Close()
-	return db
+	return postgresDB
 }
