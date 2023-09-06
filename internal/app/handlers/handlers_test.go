@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simple_stotage"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simpleStotage"
 	"net/http"
 	"net/http/httptest"
 	"testing"

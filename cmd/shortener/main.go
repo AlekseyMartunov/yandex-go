@@ -12,7 +12,7 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/postgres"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simple_stotage"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simpleStotage"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
 )
 
@@ -36,21 +36,21 @@ func main() {
 	}
 }
 
-func createDB(driverName string, cfg *config.Config) simple_stotage.Storage {
+func createDB(driverName string, cfg *config.Config) simpleStotage.Storage {
 	db, err := sql.Open(driverName, cfg.GetDataBaseDSN())
 	if err != nil {
-		return simple_stotage.NewStorage(cfg.GetFileStoragePath())
+		return simpleStotage.NewStorage(cfg.GetFileStoragePath())
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return simple_stotage.NewStorage(cfg.GetFileStoragePath())
+		return simpleStotage.NewStorage(cfg.GetFileStoragePath())
 	}
 
 	postgresDB := postgres.NewDB(db)
 	err = postgresDB.CreateTableURL()
 	if err != nil {
-		return simple_stotage.NewStorage(cfg.GetFileStoragePath())
+		return simpleStotage.NewStorage(cfg.GetFileStoragePath())
 	}
 	cfg.SetDataBaseStatus(true)
 
