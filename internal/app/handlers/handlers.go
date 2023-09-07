@@ -10,6 +10,7 @@ import (
 type encoder interface {
 	Encode(string) string
 	Decode(string) (string, bool)
+	BatchEncode(*[][3]string) error
 }
 
 type config interface {

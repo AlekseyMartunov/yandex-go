@@ -11,6 +11,7 @@ type ShortURLHandler interface {
 	DecodeURL(w http.ResponseWriter, r *http.Request)
 	EncodeAPI(w http.ResponseWriter, r *http.Request)
 	DataBaseStatus(w http.ResponseWriter, r *http.Request)
+	BatchURL(w http.ResponseWriter, r *http.Request)
 }
 
 type BaseRouter struct {
@@ -34,6 +35,7 @@ func (br *BaseRouter) Route() *chi.Mux {
 
 	router.Post("/", br.handler.EncodeURL)
 	router.Post("/api/shorten", br.handler.EncodeAPI)
+	router.Post("/api/shorten/batch", br.handler.BatchURL)
 
 	return router
 }

@@ -1,0 +1,77 @@
+package handlers
+
+import (
+	"encoding/json"
+	"io"
+	"net/http"
+)
+
+type batchRequest struct {
+	CorrelationID string `json:"correlation_id"`
+	OriginalURL   string `json:"original_url"`
+}
+
+type batchResponse struct {
+	CorrelationID string `json:"correlation_id"`
+	ShortURL      string `json:"short_url"`
+}
+
+type jsonBatchReq []batchRequest
+type jsonBatchResp []batchResponse
+
+func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Content-type should be 'application/json'", http.StatusBadRequest)
+		return
+	}
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Request body read error", http.StatusBadRequest)
+		return
+	}
+
+	var jbReq jsonBatchReq
+
+	err = json.Unmarshal(data, &jbReq)
+	if err != nil {
+		http.Error(w, "Request body read error", http.StatusBadRequest)
+		return
+	}
+
+	urlArr := make([][3]string, len(jbReq))
+
+	// [[a, b, c], [a, b, c], ...]
+	// a - CorrelationID
+	// b - OriginalURL
+	// c - ShortedURL
+
+	for id, val := range jbReq {
+		urlArr[id][0] = val.CorrelationID
+		urlArr[id][1] = val.OriginalURL
+	}
+
+	err = s.encoder.BatchEncode(&urlArr)
+	if err != nil {
+		http.Error(w, "Saving error", http.StatusBadRequest)
+		return
+	}
+
+	jbResp := make(jsonBatchResp, len(urlArr), len(urlArr))
+
+	for id, val := range urlArr {
+		jbResp[id].ShortURL = val[2]
+		jbResp[id].CorrelationID = val[0]
+	}
+
+	res, err := json.Marshal(jbResp)
+
+	if err != nil {
+		http.Error(w, "Request body read error", http.StatusHTTPVersionNotSupported)
+		return
+	}
+	w.Write(res)
+
+}

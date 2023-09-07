@@ -42,7 +42,8 @@ func (s *ShortURLHandler) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 	res, err := json.Marshal(jResp)
 
 	if err != nil {
-		panic(err)
+		http.Error(w, "Request body read error", http.StatusHTTPVersionNotSupported)
+		return
 	}
 	w.Write(res)
 

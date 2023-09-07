@@ -1,19 +1,9 @@
 package encoder
 
-import (
-	"math/rand"
-	"time"
-)
-
-var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
 type storage interface {
 	Save(key, val string) error
 	Get(string) (string, bool)
-}
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
+	SaveBatch(data *[][3]string) error
 }
 
 type Encoder struct {
@@ -25,11 +15,11 @@ func NewEncoder(s storage) *Encoder {
 }
 
 func (e *Encoder) Encode(url string) string {
-	id := generateRandomID(15)
+	id := generateRandomID()
 	_, ok := e.storage.Get(id)
 
 	for ok {
-		id := generateRandomID(10)
+		id := generateRandomID()
 		_, ok = e.storage.Get(id)
 	}
 
@@ -45,10 +35,20 @@ func (e *Encoder) Decode(id string) (string, bool) {
 	return url, ok
 }
 
-func generateRandomID(size int) string {
-	output := make([]rune, size)
-	for i := range output {
-		output[i] = symbolsRunes[rand.Intn(len(symbolsRunes))]
+func (e *Encoder) BatchEncode(data *[][3]string) error {
+	// [[a, b, c], [a, b, c], ...]
+	// a - CorrelationID
+	// b - OriginalURL
+	// c - ShortedURL
+
+	for id, _ := range *data {
+		(*data)[id][2] = generateRandomID()
 	}
-	return string(output)
+
+	err := e.storage.SaveBatch(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

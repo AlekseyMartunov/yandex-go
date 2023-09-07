@@ -48,6 +48,38 @@ func (m *URLModel) Get(key string) (string, bool) {
 
 }
 
+func (m *URLModel) SaveBatch(data *[][3]string) error {
+	// [[a, b, c], [a, b, c], ...]
+	// a - CorrelationID
+	// b - OriginalURL
+	// c - ShortedURL
+
+	ctx := context.Background()
+	tx, err := m.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	query := `INSERT INTO url (shorted, original) VALUES ($1, $2)`
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, val := range *data {
+		_, err := stmt.ExecContext(ctx, val[2], val[1])
+		if err != nil {
+			return err
+		}
+	}
+
+	tx.Commit()
+	return nil
+}
+
 func (m *URLModel) Close() error {
 	return m.db.Close()
 }
