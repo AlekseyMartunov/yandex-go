@@ -41,16 +41,18 @@ func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urlArr := make([][3]string, len(jbReq))
+	urlArr := make([][3]string, 0, len(jbReq))
 
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
 	// b - OriginalURL
 	// c - ShortedURL
 
-	for id, val := range jbReq {
-		urlArr[id][0] = val.CorrelationID
-		urlArr[id][1] = val.OriginalURL
+	for _, val := range jbReq {
+		if val.CorrelationID == "" || val.OriginalURL == "" {
+			continue
+		}
+		urlArr = append(urlArr, [3]string{val.CorrelationID, val.OriginalURL, ""})
 	}
 
 	err = s.encoder.BatchEncode(&urlArr)
@@ -59,7 +61,7 @@ func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jbResp := make(jsonBatchResp, len(urlArr), len(urlArr))
+	jbResp := make(jsonBatchResp, len(urlArr))
 
 	for id, val := range urlArr {
 		jbResp[id].ShortURL = val[2]
@@ -72,6 +74,7 @@ func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Request body read error", http.StatusHTTPVersionNotSupported)
 		return
 	}
-	w.Write(res)
 
+	w.WriteHeader(http.StatusCreated)
+	w.Write(res)
 }
