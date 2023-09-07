@@ -64,7 +64,7 @@ func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
 	jbResp := make(jsonBatchResp, len(urlArr))
 
 	for id, val := range urlArr {
-		jbResp[id].ShortURL = val[2]
+		jbResp[id].ShortURL = s.cfg.GetShorterURL() + val[2]
 		jbResp[id].CorrelationID = val[0]
 	}
 

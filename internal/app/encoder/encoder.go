@@ -41,7 +41,7 @@ func (e *Encoder) BatchEncode(data *[][3]string) error {
 	// b - OriginalURL
 	// c - ShortedURL
 
-	for id, _ := range *data {
+	for id := range *data {
 		(*data)[id][2] = generateRandomID()
 	}
 
