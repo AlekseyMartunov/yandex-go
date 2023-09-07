@@ -56,7 +56,7 @@ func (s *FileStorage) SaveBatch(data *[][3]string) error {
 	// b - OriginalURL
 	// c - ShortedURL
 
-	for id, _ := range *data {
+	for id := range *data {
 		key := (*data)[id][2]
 		val := (*data)[id][1]
 		err := s.Save(key, val)
