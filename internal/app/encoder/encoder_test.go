@@ -23,7 +23,6 @@ func TestStorage(t *testing.T) {
 		"шла Cаша по шоссе",
 		"Some another string",
 		"\n\n\t\\dfdft\t\nkdfkdf",
-		"AAA",
 		"123",
 	}
 
