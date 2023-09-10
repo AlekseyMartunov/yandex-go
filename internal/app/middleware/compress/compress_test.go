@@ -96,8 +96,6 @@ func TestCompress(t *testing.T) {
 
 			assert.NoError(t, err, "error making HTTP request")
 
-			fmt.Println("body is", string(resp.Body()))
-
 			assert.Equal(t, tc.wants.body, resp.Body())
 
 		})

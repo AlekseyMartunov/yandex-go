@@ -16,11 +16,12 @@ type FileStorage struct {
 
 func (s *FileStorage) Save(key, val string) error {
 
-	s.data[key] = val
-	_, ok := s.data[key]
-	if ok {
-		return &pgconn.PgError{Code: "23505"}
+	for _, v := range s.data {
+		if v == val {
+			return &pgconn.PgError{Code: "23505"}
+		}
 	}
+	s.data[key] = val
 
 	fl := fileLine{
 		UUID:        s.currentID,
@@ -73,9 +74,9 @@ func (s *FileStorage) SaveBatch(data *[][3]string) error {
 }
 
 func (s *FileStorage) GetShorted(key string) (string, bool) {
-	for _, v := range s.data {
+	for k, v := range s.data {
 		if v == key {
-			return v, true
+			return k, true
 		}
 	}
 	return "", false

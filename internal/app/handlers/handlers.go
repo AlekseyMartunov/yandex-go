@@ -42,7 +42,7 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 		shorted, ok := s.encoder.GetShorted(string(data))
 		if ok {
 			w.WriteHeader(http.StatusConflict)
-			w.Write([]byte(shorted))
+			w.Write([]byte(s.cfg.GetShorterURL() + shorted))
 			return
 		}
 		http.Error(w, "Some server error", http.StatusInternalServerError)
