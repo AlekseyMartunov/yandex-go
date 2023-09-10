@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type URLModel struct {
@@ -19,7 +20,7 @@ func (m *URLModel) CreateTableURL() error {
 	query := `CREATE TABLE IF NOT EXISTS url (
     					id serial PRIMARY KEY, 
     					shorted VARCHAR(20),
-    					original TEXT
+    					original TEXT UNIQUE
     					)`
 
 	_, err := m.db.ExecContext(context.Background(), query)
@@ -32,6 +33,9 @@ func (m *URLModel) Save(key, val string) error {
 
 	_, err := m.db.ExecContext(context.Background(), query, key, val)
 	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
+			return pgErr
+		}
 		return err
 	}
 	return nil
@@ -45,7 +49,6 @@ func (m *URLModel) Get(key string) (string, bool) {
 	row.Scan(&original)
 
 	return original.String, original.Valid
-
 }
 
 func (m *URLModel) SaveBatch(data *[][3]string) error {
@@ -78,6 +81,16 @@ func (m *URLModel) SaveBatch(data *[][3]string) error {
 
 	tx.Commit()
 	return nil
+}
+
+func (m *URLModel) GetShorted(key string) (string, bool) {
+	query := "SELECT shorted FROM url WHERE original = $1"
+	row := m.db.QueryRowContext(context.Background(), query, key)
+
+	var original sql.NullString
+	row.Scan(&original)
+
+	return original.String, original.Valid
 }
 
 func (m *URLModel) Close() error {

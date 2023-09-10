@@ -10,6 +10,7 @@ type Storage interface {
 	Save(key, val string) error
 	Get(key string) (string, bool)
 	SaveBatch(data *[][3]string) error
+	GetShorted(key string) (string, bool)
 	Close() error
 }
 

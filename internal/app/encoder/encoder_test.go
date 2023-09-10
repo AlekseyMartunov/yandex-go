@@ -30,7 +30,7 @@ func TestStorage(t *testing.T) {
 	keys := make([]string, 0, 10)
 
 	for _, val := range testCase {
-		key := e.Encode(val)
+		key, _ := e.Encode(val)
 		keys = append(keys, key)
 	}
 

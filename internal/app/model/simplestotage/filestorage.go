@@ -2,6 +2,7 @@ package simplestotage
 
 import (
 	"encoding/json"
+	"github.com/jackc/pgx/v5/pgconn"
 	"os"
 	"sync"
 )
@@ -16,6 +17,10 @@ type FileStorage struct {
 func (s *FileStorage) Save(key, val string) error {
 
 	s.data[key] = val
+	_, ok := s.data[key]
+	if ok {
+		return &pgconn.PgError{Code: "23505"}
+	}
 
 	fl := fileLine{
 		UUID:        s.currentID,
@@ -65,6 +70,15 @@ func (s *FileStorage) SaveBatch(data *[][3]string) error {
 		}
 	}
 	return nil
+}
+
+func (s *FileStorage) GetShorted(key string) (string, bool) {
+	for _, v := range s.data {
+		if v == key {
+			return v, true
+		}
+	}
+	return "", false
 }
 
 func (s *FileStorage) Close() error {

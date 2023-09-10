@@ -13,7 +13,21 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func generateRandomID() string {
+func (e *Encoder) generateRandomID() string {
+
+	id := getRandomValues()
+
+	_, ok := e.storage.Get(id)
+
+	for ok {
+		id = getRandomValues()
+		_, ok = e.storage.Get(id)
+	}
+
+	return id
+}
+
+func getRandomValues() string {
 	output := make([]rune, size)
 	for i := range output {
 		output[i] = symbolsRunes[rand.Intn(len(symbolsRunes))]

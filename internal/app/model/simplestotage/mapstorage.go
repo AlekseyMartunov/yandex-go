@@ -1,6 +1,9 @@
 package simplestotage
 
-import "sync"
+import (
+	"github.com/jackc/pgx/v5/pgconn"
+	"sync"
+)
 
 type MapStorage struct {
 	data map[string]string
@@ -8,6 +11,10 @@ type MapStorage struct {
 }
 
 func (s *MapStorage) Save(key, val string) error {
+	_, ok := s.data[key]
+	if ok {
+		return &pgconn.PgError{Code: "23505"}
+	}
 	s.Mutex.Lock()
 	s.data[key] = val
 	s.Mutex.Unlock()
@@ -31,6 +38,15 @@ func (s *MapStorage) SaveBatch(data *[][3]string) error {
 		s.Save(key, val)
 	}
 	return nil
+}
+
+func (s *MapStorage) GetShorted(key string) (string, bool) {
+	for _, v := range s.data {
+		if v == key {
+			return v, true
+		}
+	}
+	return "", false
 }
 
 func (s *MapStorage) Close() error {
