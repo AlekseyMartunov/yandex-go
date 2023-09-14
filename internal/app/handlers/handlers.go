@@ -13,6 +13,7 @@ type encoder interface {
 	Decode(string) (string, bool)
 	BatchEncode(*[][3]string) error
 	GetShorted(key string) (string, bool)
+	Ping() error
 }
 
 type config interface {

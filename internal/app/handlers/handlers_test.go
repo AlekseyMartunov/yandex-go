@@ -14,7 +14,7 @@ import (
 )
 
 func TestShortUrlHandler_EncodeURL(t *testing.T) {
-	s := storage2.NewStorage("")
+	s, _ := storage2.NewMapStorage()
 
 	c := config2.NewConfig()
 	//c.GetConfig()
@@ -86,7 +86,7 @@ func TestShortUrlHandler_EncodeURL(t *testing.T) {
 }
 
 func TestShortUrlHandler_DecodeURL(t *testing.T) {
-	s := storage2.NewStorage("")
+	s, _ := storage2.NewMapStorage()
 
 	c := config2.NewConfig()
 	//c.GetConfig()

@@ -20,7 +20,10 @@ func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
-	db := createDB("pgx", cfg)
+	db, err := createDB("pgx", cfg)
+	if err != nil {
+		panic(err)
+	}
 	defer db.Close()
 
 	encoder := encoder.NewEncoder(db)
@@ -30,29 +33,38 @@ func main() {
 	log := logger.NewLogger("info")
 	router := router.NewBaseRouter(handler, log.WithLogging, compress.Compress)
 
-	err := http.ListenAndServe(cfg.GetAddress(), router.Route())
+	err = http.ListenAndServe(cfg.GetAddress(), router.Route())
 	if err != nil {
 		panic(err)
 	}
 }
 
-func createDB(driverName string, cfg *config.Config) simplestotage.Storage {
-	db, err := sql.Open(driverName, cfg.GetDataBaseDSN())
-	if err != nil {
-		return simplestotage.NewStorage(cfg.GetFileStoragePath())
+func createDB(driverName string, cfg *config.Config) (simplestotage.Storage, error) {
+	if cfg.GetDataBaseDSN() != "" {
+		db, err := sql.Open(driverName, cfg.GetDataBaseDSN())
+		if err != nil {
+			return nil, err
+		}
+		postgresDB := postgres.NewDB(db)
+		err = postgresDB.CreateTableURL()
+		if err != nil {
+			return nil, err
+		}
+		return postgresDB, nil
 	}
 
-	err = db.Ping()
-	if err != nil {
-		return simplestotage.NewStorage(cfg.GetFileStoragePath())
+	if cfg.GetFileStoragePath() != "" {
+		fileStorage, err := simplestotage.NewFileStorage(cfg.GetFileStoragePath())
+		if err != nil {
+			return nil, err
+		}
+		return fileStorage, nil
 	}
 
-	postgresDB := postgres.NewDB(db)
-	err = postgresDB.CreateTableURL()
+	mapStorage, err := simplestotage.NewMapStorage()
 	if err != nil {
-		return simplestotage.NewStorage(cfg.GetFileStoragePath())
+		return nil, err
 	}
-	cfg.SetDataBaseStatus(true)
+	return mapStorage, nil
 
-	return postgresDB
 }

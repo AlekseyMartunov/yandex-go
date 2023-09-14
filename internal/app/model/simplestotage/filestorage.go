@@ -1,7 +1,9 @@
 package simplestotage
 
 import (
+	"bufio"
 	"encoding/json"
+	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"os"
 	"sync"
@@ -12,6 +14,31 @@ type FileStorage struct {
 	data      map[string]string
 	currentID int
 	sync.Mutex
+}
+
+func NewFileStorage(filePath string) (Storage, error) {
+	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	data := make(map[string]string)
+
+	fl := &fileLine{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		json.Unmarshal(scanner.Bytes(), fl)
+		data[fl.ShortURL] = fl.OriginalURL
+	}
+	s := FileStorage{
+		filePath:  filePath,
+		data:      data,
+		currentID: fl.UUID + 1,
+	}
+
+	return &s, nil
 }
 
 func (s *FileStorage) Save(key, val string) error {
@@ -80,6 +107,10 @@ func (s *FileStorage) GetShorted(key string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (s *FileStorage) Ping() error {
+	return errors.New("this is a file")
 }
 
 func (s *FileStorage) Close() error {

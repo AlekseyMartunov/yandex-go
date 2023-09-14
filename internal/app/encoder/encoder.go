@@ -5,6 +5,7 @@ type storage interface {
 	Get(string) (string, bool)
 	SaveBatch(data *[][3]string) error
 	GetShorted(key string) (string, bool)
+	Ping() error
 }
 
 type Encoder struct {
@@ -50,4 +51,8 @@ func (e *Encoder) BatchEncode(data *[][3]string) error {
 func (e *Encoder) GetShorted(url string) (string, bool) {
 	shorted, ok := e.storage.GetShorted(url)
 	return shorted, ok
+}
+
+func (e *Encoder) Ping() error {
+	return e.storage.Ping()
 }

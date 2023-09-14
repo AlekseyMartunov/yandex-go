@@ -1,6 +1,7 @@
 package simplestotage
 
 import (
+	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"sync"
 )
@@ -8,6 +9,10 @@ import (
 type MapStorage struct {
 	data map[string]string
 	sync.Mutex
+}
+
+func NewMapStorage() (Storage, error) {
+	return &MapStorage{data: make(map[string]string)}, nil
 }
 
 func (s *MapStorage) Save(key, val string) error {
@@ -49,6 +54,10 @@ func (s *MapStorage) GetShorted(key string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (s *MapStorage) Ping() error {
+	return errors.New("this is a map")
 }
 
 func (s *MapStorage) Close() error {

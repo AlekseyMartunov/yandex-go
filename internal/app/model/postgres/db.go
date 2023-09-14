@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -25,7 +27,10 @@ func (m *URLModel) CreateTableURL() error {
 
 	_, err := m.db.ExecContext(context.Background(), query)
 	return err
+}
 
+func (m *URLModel) Ping() error {
+	return m.db.Ping()
 }
 
 func (m *URLModel) Save(key, val string) error {
@@ -33,7 +38,8 @@ func (m *URLModel) Save(key, val string) error {
 
 	_, err := m.db.ExecContext(context.Background(), query, key, val)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
 			return pgErr
 		}
 		return err

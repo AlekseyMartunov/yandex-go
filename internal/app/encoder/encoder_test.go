@@ -10,7 +10,7 @@ import (
 
 func TestStorage(t *testing.T) {
 
-	s := storage2.NewStorage("")
+	s, _ := storage2.NewMapStorage()
 
 	e := NewEncoder(s)
 
