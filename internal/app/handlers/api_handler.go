@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 	"io"
 	"net/http"
@@ -37,25 +39,27 @@ func (s *ShortURLHandler) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	encodedData, err := s.encoder.Encode(jReq.URL)
-	if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
-		shorted, ok := s.encoder.GetShorted(jReq.URL)
-		if ok {
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
+			shorted, ok := s.encoder.GetShorted(jReq.URL)
+			if ok {
+				jResp := jsonResponse{
+					Result: s.cfg.GetShorterURL() + shorted,
+				}
 
-			jResp := jsonResponse{
-				Result: s.cfg.GetShorterURL() + shorted,
-			}
-
-			res, err := json.Marshal(jResp)
-			if err != nil {
-				http.Error(w, "Request body read error", http.StatusHTTPVersionNotSupported)
+				res, err := json.Marshal(jResp)
+				if err != nil {
+					http.Error(w, "Request body read error", http.StatusHTTPVersionNotSupported)
+					return
+				}
+				w.WriteHeader(http.StatusConflict)
+				w.Write(res)
 				return
 			}
-			w.WriteHeader(http.StatusConflict)
-			w.Write(res)
+			http.Error(w, "Some server error", http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, "Some server error", http.StatusInternalServerError)
-		return
 	}
 
 	jResp := jsonResponse{
@@ -71,5 +75,4 @@ func (s *ShortURLHandler) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(res)
-
 }
