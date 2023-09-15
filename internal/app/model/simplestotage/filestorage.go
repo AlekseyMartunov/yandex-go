@@ -1,21 +1,13 @@
-package storage
+package simplestotage
 
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
 	"os"
 	"sync"
 )
-
-type Storage interface {
-	Save(key, val string) error
-	Get(key string) (string, bool)
-}
-
-type MapStorage struct {
-	data map[string]string
-	sync.Mutex
-}
 
 type FileStorage struct {
 	filePath  string
@@ -24,19 +16,12 @@ type FileStorage struct {
 	sync.Mutex
 }
 
-type fileLine struct {
-	UUID        int    `json:"uuid"`
-	ShortURL    string `json:"short_url"`
-	OriginalURL string `json:"original_url"`
-}
-
-func NewStorage(filePath string) Storage {
-
+func NewFileStorage(filePath string) (Storage, error) {
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-
 	if err != nil {
-		return &MapStorage{data: make(map[string]string)}
+		return nil, err
 	}
+
 	defer file.Close()
 
 	data := make(map[string]string)
@@ -53,11 +38,16 @@ func NewStorage(filePath string) Storage {
 		currentID: fl.UUID + 1,
 	}
 
-	return &s
+	return &s, nil
 }
 
 func (s *FileStorage) Save(key, val string) error {
 
+	for _, v := range s.data {
+		if v == val {
+			return &pgconn.PgError{Code: "23505"}
+		}
+	}
 	s.data[key] = val
 
 	fl := fileLine{
@@ -93,12 +83,36 @@ func (s *FileStorage) Get(key string) (string, bool) {
 	return val, ok
 }
 
-func (s *MapStorage) Save(key, val string) error {
-	s.data[key] = val
+func (s *FileStorage) SaveBatch(data *[][3]string) error {
+	// [[a, b, c], [a, b, c], ...]
+	// a - CorrelationID
+	// b - OriginalURL
+	// c - ShortedURL
+
+	for id := range *data {
+		key := (*data)[id][2]
+		val := (*data)[id][1]
+		err := s.Save(key, val)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (s *MapStorage) Get(key string) (string, bool) {
-	val, ok := s.data[key]
-	return val, ok
+func (s *FileStorage) GetShorted(key string) (string, bool) {
+	for k, v := range s.data {
+		if v == key {
+			return k, true
+		}
+	}
+	return "", false
+}
+
+func (s *FileStorage) Ping() error {
+	return errors.New("this is a file")
+}
+
+func (s *FileStorage) Close() error {
+	return nil
 }

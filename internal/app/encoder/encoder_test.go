@@ -2,16 +2,15 @@ package encoder
 
 import (
 	"fmt"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simplestotage"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 )
 
 func TestStorage(t *testing.T) {
 
-	s := storage2.NewStorage("")
+	s, _ := storage2.NewMapStorage()
 
 	e := NewEncoder(s)
 
@@ -24,14 +23,13 @@ func TestStorage(t *testing.T) {
 		"шла Cаша по шоссе",
 		"Some another string",
 		"\n\n\t\\dfdft\t\nkdfkdf",
-		"AAA",
 		"123",
 	}
 
 	keys := make([]string, 0, 10)
 
 	for _, val := range testCase {
-		key := e.Encode(val)
+		key, _ := e.Encode(val)
 		keys = append(keys, key)
 	}
 

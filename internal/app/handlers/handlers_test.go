@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simplestotage"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,11 +11,10 @@ import (
 
 	config2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	encoder2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/storage"
 )
 
 func TestShortUrlHandler_EncodeURL(t *testing.T) {
-	s := storage2.NewStorage("")
+	s, _ := storage2.NewMapStorage()
 
 	c := config2.NewConfig()
 	//c.GetConfig()
@@ -86,7 +86,7 @@ func TestShortUrlHandler_EncodeURL(t *testing.T) {
 }
 
 func TestShortUrlHandler_DecodeURL(t *testing.T) {
-	s := storage2.NewStorage("")
+	s, _ := storage2.NewMapStorage()
 
 	c := config2.NewConfig()
 	//c.GetConfig()
