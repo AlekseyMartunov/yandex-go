@@ -83,14 +83,17 @@ func createStorageURL(driverName string, cfg *config.Config) (simplestotage.Stor
 }
 
 func createStorageUser(driverName string, cfg *config.Config) (simpleusers.Users, error) {
-	conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
-	if err != nil {
-		return simpleusers.NewUser(), nil
+	if cfg.GetDataBaseDSN() != "" {
+		conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
+		if err != nil {
+			return simpleusers.NewUser(), nil
+		}
+		err = migrations.MakeMigration(conn)
+		if err != nil {
+			return nil, err
+		}
+		return userspostgres.NewUserModel(conn), nil
 	}
-	err = migrations.MakeMigration(conn)
-	if err != nil {
-		return nil, err
-	}
-	return userspostgres.NewUserModel(conn), nil
+	return simpleusers.NewUser(), nil
 
 }
