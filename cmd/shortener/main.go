@@ -25,9 +25,6 @@ func main() {
 	cfg.GetConfig()
 
 	conn, err := getConnectionPool(cfg)
-	if err != nil {
-		panic(err)
-	}
 
 	defer conn.Close()
 
