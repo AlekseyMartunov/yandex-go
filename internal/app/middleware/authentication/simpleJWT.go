@@ -45,7 +45,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 		if userID == -1 {
 
 			if r.URL.Path == "/api/user/urls" {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				http.Error(w, "Invalid token", http.StatusNoContent)
 				return
 			}
 

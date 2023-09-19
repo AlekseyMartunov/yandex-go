@@ -24,21 +24,17 @@ func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
-	conn, err := getConnectionPool(cfg)
-
-	defer conn.Close()
-
-	db, err := createURLStorage(conn, cfg)
+	URLDB, err := createStorageURL("pgx", cfg)
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 
-	dbUser, err := createUserStorage(conn)
+	dbUser, err := createStorageUser("pgx", cfg)
 	if err != nil {
-		panic(nil)
+		panic(err)
 	}
 
-	encoder := encoder.NewEncoder(db)
+	encoder := encoder.NewEncoder(URLDB)
 	handler := handlers.NewShortURLHandler(encoder, cfg)
 
 	tokenController := authentication.NewTokenController(dbUser)
@@ -57,9 +53,9 @@ func main() {
 	}
 }
 
-func getConnectionPool(cfg *config.Config) (*sql.DB, error) {
+func createStorageURL(driverName string, cfg *config.Config) (simplestotage.Storage, error) {
 	if cfg.GetDataBaseDSN() != "" {
-		conn, err := sql.Open("pgx", cfg.GetDataBaseDSN())
+		conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
 		if err != nil {
 			return nil, err
 		}
@@ -67,15 +63,8 @@ func getConnectionPool(cfg *config.Config) (*sql.DB, error) {
 		if err != nil {
 			return nil, err
 		}
-		return conn, nil
-	}
-	return nil, nil
-}
-
-func createURLStorage(conn *sql.DB, cfg *config.Config) (simplestotage.Storage, error) {
-	if conn != nil {
-		db := urlpostgres.NewDB(conn)
-		return db, nil
+		postgresDB := urlpostgres.NewDB(conn)
+		return postgresDB, nil
 	}
 
 	if cfg.GetFileStoragePath() != "" {
@@ -91,14 +80,17 @@ func createURLStorage(conn *sql.DB, cfg *config.Config) (simplestotage.Storage, 
 		return nil, err
 	}
 	return mapStorage, nil
-
 }
 
-func createUserStorage(conn *sql.DB) (simpleusers.Users, error) {
-	if conn != nil {
-		db := userspostgres.NewUserModel(conn)
-		return db, nil
+func createStorageUser(driverName string, cfg *config.Config) (simpleusers.Users, error) {
+	conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
+	if err != nil {
+		return simpleusers.NewUser(), nil
 	}
-	db := simpleusers.NewUser()
-	return db, nil
+	err = migrations.MakeMigration(conn)
+	if err != nil {
+		return nil, err
+	}
+	return userspostgres.NewUserModel(conn), nil
+
 }
