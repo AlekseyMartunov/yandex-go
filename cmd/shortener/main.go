@@ -29,6 +29,8 @@ func main() {
 		panic(err)
 	}
 
+	defer URLDB.Close()
+
 	dbUser, err := createStorageUser("pgx", cfg)
 	if err != nil {
 		panic(err)

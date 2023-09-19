@@ -110,6 +110,11 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 		result = append(result, arr)
 	}
 
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
 	return result, nil
 
 }
