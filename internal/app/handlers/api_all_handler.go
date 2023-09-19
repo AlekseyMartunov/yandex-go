@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-type allURl struct {
+type allURL struct {
 	Shorted  string `json:"short_url"`
 	Original string `json:"original_url"`
 }
 
-type arrAllURL []allURl
+type arrAllURL []allURL
 
 func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("userID")
@@ -27,7 +27,7 @@ func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	result := make(arrAllURL, 0, len(data))
 
 	for indx := range data {
-		el := allURl{
+		el := allURL{
 			Shorted:  data[indx][0],
 			Original: data[indx][1],
 		}
