@@ -28,7 +28,7 @@ func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 
 	for indx := range data {
 		el := allURL{
-			Shorted:  data[indx][0],
+			Shorted:  s.cfg.GetShorterURL() + data[indx][0],
 			Original: data[indx][1],
 		}
 		result = append(result, el)
