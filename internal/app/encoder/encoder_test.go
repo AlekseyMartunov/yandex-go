@@ -2,7 +2,7 @@ package encoder
 
 import (
 	"fmt"
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simplestotage"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simplestotage"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +29,7 @@ func TestStorage(t *testing.T) {
 	keys := make([]string, 0, 10)
 
 	for _, val := range testCase {
-		key, _ := e.Encode(val)
+		key, _ := e.Encode(val, "10")
 		keys = append(keys, key)
 	}
 

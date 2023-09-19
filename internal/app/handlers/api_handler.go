@@ -38,7 +38,9 @@ func (s *ShortURLHandler) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encodedData, err := s.encoder.Encode(jReq.URL)
+	userID := r.Header.Get("userID")
+
+	encodedData, err := s.encoder.Encode(jReq.URL, userID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {

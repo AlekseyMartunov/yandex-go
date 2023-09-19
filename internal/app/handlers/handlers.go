@@ -9,10 +9,11 @@ import (
 )
 
 type encoder interface {
-	Encode(string) (string, error)
+	Encode(url, userID string) (string, error)
 	Decode(string) (string, bool)
-	BatchEncode(*[][3]string) error
+	BatchEncode(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
+	GetAllURL(userID string) ([][2]string, error)
 	Ping() error
 }
 
@@ -38,7 +39,9 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	encodedData, err := s.encoder.Encode(string(data))
+	userID := r.Header.Get("userID")
+
+	encodedData, err := s.encoder.Encode(string(data), userID)
 	if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
 		shorted, ok := s.encoder.GetShorted(string(data))
 		if ok {

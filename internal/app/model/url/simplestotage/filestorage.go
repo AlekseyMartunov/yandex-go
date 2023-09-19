@@ -41,7 +41,7 @@ func NewFileStorage(filePath string) (Storage, error) {
 	return &s, nil
 }
 
-func (s *FileStorage) Save(key, val string) error {
+func (s *FileStorage) Save(key, val, userId string) error {
 
 	for _, v := range s.data {
 		if v == val {
@@ -83,7 +83,7 @@ func (s *FileStorage) Get(key string) (string, bool) {
 	return val, ok
 }
 
-func (s *FileStorage) SaveBatch(data *[][3]string) error {
+func (s *FileStorage) SaveBatch(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
 	// b - OriginalURL
@@ -92,7 +92,7 @@ func (s *FileStorage) SaveBatch(data *[][3]string) error {
 	for id := range *data {
 		key := (*data)[id][2]
 		val := (*data)[id][1]
-		err := s.Save(key, val)
+		err := s.Save(key, val, userID)
 		if err != nil {
 			return err
 		}
@@ -107,6 +107,10 @@ func (s *FileStorage) GetShorted(key string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (s *FileStorage) GetAllURL(userID string) ([][2]string, error) {
+	return nil, nil
 }
 
 func (s *FileStorage) Ping() error {

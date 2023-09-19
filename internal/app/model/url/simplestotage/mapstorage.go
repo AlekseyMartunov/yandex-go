@@ -15,7 +15,7 @@ func NewMapStorage() (Storage, error) {
 	return &MapStorage{data: make(map[string]string)}, nil
 }
 
-func (s *MapStorage) Save(key, val string) error {
+func (s *MapStorage) Save(key, val, userID string) error {
 	for _, v := range s.data {
 		if v == val {
 			return &pgconn.PgError{Code: "23505"}
@@ -33,7 +33,7 @@ func (s *MapStorage) Get(key string) (string, bool) {
 	return val, ok
 }
 
-func (s *MapStorage) SaveBatch(data *[][3]string) error {
+func (s *MapStorage) SaveBatch(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
 	// b - OriginalURL
@@ -42,7 +42,7 @@ func (s *MapStorage) SaveBatch(data *[][3]string) error {
 	for id := range *data {
 		key := (*data)[id][2]
 		val := (*data)[id][1]
-		s.Save(key, val)
+		s.Save(key, val, userID)
 	}
 	return nil
 }
@@ -54,6 +54,10 @@ func (s *MapStorage) GetShorted(key string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (s *MapStorage) GetAllURL(userID string) ([][2]string, error) {
+	return nil, nil
 }
 
 func (s *MapStorage) Ping() error {

@@ -9,10 +9,14 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/postgres"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/simplestotage"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/migrations"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simplestotage"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/urlpostgres"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/users/simpleusers"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/users/userspostgres"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
 )
 
@@ -20,18 +24,35 @@ func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
-	db, err := createDB("pgx", cfg)
+	conn, err := getConnectionPool(cfg)
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
+
+	defer conn.Close()
+
+	db, err := createURLStorage(conn, cfg)
+	if err != nil {
+		panic(nil)
+	}
+
+	dbUser, err := createUserStorage(conn)
+	if err != nil {
+		panic(nil)
+	}
 
 	encoder := encoder.NewEncoder(db)
-
 	handler := handlers.NewShortURLHandler(encoder, cfg)
 
+	tokenController := authentication.NewTokenController(dbUser)
 	log := logger.NewLogger("info")
-	router := router.NewBaseRouter(handler, log.WithLogging, compress.Compress)
+
+	router := router.NewBaseRouter(
+		handler,
+		log.WithLogging,
+		compress.Compress,
+		tokenController.CheckToken,
+	)
 
 	err = http.ListenAndServe(cfg.GetAddress(), router.Route())
 	if err != nil {
@@ -39,18 +60,25 @@ func main() {
 	}
 }
 
-func createDB(driverName string, cfg *config.Config) (simplestotage.Storage, error) {
+func getConnectionPool(cfg *config.Config) (*sql.DB, error) {
 	if cfg.GetDataBaseDSN() != "" {
-		db, err := sql.Open(driverName, cfg.GetDataBaseDSN())
+		conn, err := sql.Open("pgx", cfg.GetDataBaseDSN())
 		if err != nil {
 			return nil, err
 		}
-		postgresDB := postgres.NewDB(db)
-		err = postgresDB.CreateTableURL()
+		err = migrations.MakeMigration(conn)
 		if err != nil {
 			return nil, err
 		}
-		return postgresDB, nil
+		return conn, nil
+	}
+	return nil, nil
+}
+
+func createURLStorage(conn *sql.DB, cfg *config.Config) (simplestotage.Storage, error) {
+	if conn != nil {
+		db := urlpostgres.NewDB(conn)
+		return db, nil
 	}
 
 	if cfg.GetFileStoragePath() != "" {
@@ -67,4 +95,13 @@ func createDB(driverName string, cfg *config.Config) (simplestotage.Storage, err
 	}
 	return mapStorage, nil
 
+}
+
+func createUserStorage(conn *sql.DB) (simpleusers.Users, error) {
+	if conn != nil {
+		db := userspostgres.NewUserModel(conn)
+		return db, nil
+	}
+	db := simpleusers.NewUser()
+	return db, nil
 }

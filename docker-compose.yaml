@@ -10,5 +10,5 @@ services:
       - "5432:5432"
 
 
-# postgres://username:password@localhost:5432/database_name
+# urlpostgres://username:password@localhost:5432/database_name
 # export DATABASE_DSN=postgres://admin:1234@localhost:5432/test_db
