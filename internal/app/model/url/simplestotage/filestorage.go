@@ -41,7 +41,7 @@ func NewFileStorage(filePath string) (Storage, error) {
 	return &s, nil
 }
 
-func (s *FileStorage) Save(key, val, userId string) error {
+func (s *FileStorage) Save(key, val, userID string) error {
 
 	for _, v := range s.data {
 		if v == val {
