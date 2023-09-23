@@ -6,14 +6,11 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
 type Str []string
-
-type URLToDel struct {
-	UserId string
-	URL    string
-}
 
 func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("UserId")
@@ -27,7 +24,7 @@ func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(b, &data)
 
 	for _, val := range data {
-		msg := URLToDel{
+		msg := simpleurl.URLToDel{
 			UserId: userID,
 			URL:    val,
 		}
@@ -40,7 +37,7 @@ func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 func (s *ShortURLHandler) asyncDelURl() {
 	ticker := time.NewTicker(10 * time.Second)
 
-	var messages []URLToDel
+	var messages []simpleurl.URLToDel
 
 	for {
 		select {

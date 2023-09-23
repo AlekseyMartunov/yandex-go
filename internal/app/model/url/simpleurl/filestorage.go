@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
-	"github.com/jackc/pgx/v5/pgconn"
 	"os"
 	"sync"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type FileStorage struct {
@@ -114,7 +114,7 @@ func (s *FileStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
 }
 
-func (s *FileStorage) DeleteURL(...handlers.URLToDel) error {
+func (s *FileStorage) DeleteURL(...URLToDel) error {
 	return nil
 }
 

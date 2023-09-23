@@ -4,9 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
 type URLModel struct {
@@ -125,7 +127,7 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 
 }
 
-func (m *URLModel) DeleteURL(messages ...handlers.URLToDel) error {
+func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	ctx := context.Background()
 
 	tx, err := m.db.BeginTx(ctx, nil)

@@ -1,7 +1,7 @@
 package encoder
 
 import (
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
 type storage interface {
@@ -10,7 +10,7 @@ type storage interface {
 	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
-	DeleteURL(...handlers.URLToDel) error
+	DeleteURL(...simpleurl.URLToDel) error
 	Ping() error
 }
 
@@ -67,7 +67,7 @@ func (e *Encoder) GetAllURL(userID string) ([][2]string, error) {
 	return res, nil
 }
 
-func (e *Encoder) DeleteURL(messages ...handlers.URLToDel) error {
+func (e *Encoder) DeleteURL(messages ...simpleurl.URLToDel) error {
 	return e.storage.DeleteURL(messages...)
 }
 

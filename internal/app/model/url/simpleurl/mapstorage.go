@@ -2,9 +2,9 @@ package simpleurl
 
 import (
 	"errors"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
-	"github.com/jackc/pgx/v5/pgconn"
 	"sync"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type MapStorage struct {
@@ -61,7 +61,7 @@ func (s *MapStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
 }
 
-func (s *MapStorage) DeleteURL(...handlers.URLToDel) error {
+func (s *MapStorage) DeleteURL(...URLToDel) error {
 	return nil
 }
 
