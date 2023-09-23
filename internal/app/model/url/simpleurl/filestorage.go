@@ -1,7 +1,8 @@
-package simplestotage
+package simpleurl
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -111,6 +112,10 @@ func (s *FileStorage) GetShorted(key string) (string, bool) {
 
 func (s *FileStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
+}
+
+func (s *FileStorage) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
+	return nil
 }
 
 func (s *FileStorage) Ping() error {

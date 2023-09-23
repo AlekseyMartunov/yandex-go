@@ -1,4 +1,6 @@
-package simplestotage
+package simpleurl
+
+import "context"
 
 type Storage interface {
 	Save(key, val, userID string) error
@@ -6,6 +8,7 @@ type Storage interface {
 	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
+	DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error
 	Ping() error
 	Close() error
 }

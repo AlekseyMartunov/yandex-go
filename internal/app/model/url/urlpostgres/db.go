@@ -36,11 +36,16 @@ func (m *URLModel) Save(key, val, userID string) error {
 }
 
 func (m *URLModel) Get(key string) (string, bool) {
-	query := "SELECT original FROM url WHERE shorted = $1"
+	query := "SELECT original, deleted FROM url WHERE shorted = $1"
 	row := m.db.QueryRowContext(context.Background(), query, key)
 
 	var original sql.NullString
-	row.Scan(&original)
+	var flag bool
+	row.Scan(&original, &flag)
+
+	if flag {
+		return "410", false
+	}
 
 	return original.String, original.Valid
 }
@@ -117,6 +122,46 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 
 	return result, nil
 
+}
+
+func (m *URLModel) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
+	chOut := fanIn(ctx, ch)
+
+	tx, err := m.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	query := `UPDATE url 
+				SET deleted = TRUE
+				WHERE shorted = $1 AND user_id = $2;`
+
+	stmt, err := tx.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for data := range chOut {
+		_, err := stmt.ExecContext(ctx, data, useID)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+func fanIn(ctx context.Context, inCh chan string) chan string {
+	finalChan := make(chan string)
+	go func() {
+		defer close(finalChan)
+		for val := range inCh {
+			finalChan <- val
+		}
+	}()
+
+	return finalChan
 }
 
 func (m *URLModel) Close() error {

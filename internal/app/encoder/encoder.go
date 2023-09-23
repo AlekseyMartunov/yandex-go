@@ -1,11 +1,14 @@
 package encoder
 
+import "context"
+
 type storage interface {
 	Save(key, val, userID string) error
 	Get(string) (string, bool)
 	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
+	DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error
 	Ping() error
 }
 
@@ -60,6 +63,10 @@ func (e *Encoder) GetAllURL(userID string) ([][2]string, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+func (e *Encoder) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
+	return e.storage.DeleteURLByUserID(useID, ctx, ch)
 }
 
 func (e *Encoder) Ping() error {

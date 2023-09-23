@@ -2,7 +2,7 @@ package encoder
 
 import (
 	"fmt"
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simplestotage"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

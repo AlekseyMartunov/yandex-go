@@ -13,7 +13,7 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/migrations"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simplestotage"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/urlpostgres"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/users/simpleusers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/users/userspostgres"
@@ -55,7 +55,7 @@ func main() {
 	}
 }
 
-func createStorageURL(driverName string, cfg *config.Config) (simplestotage.Storage, error) {
+func createStorageURL(driverName string, cfg *config.Config) (simpleurl.Storage, error) {
 	if cfg.GetDataBaseDSN() != "" {
 		conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
 		if err != nil {
@@ -70,14 +70,14 @@ func createStorageURL(driverName string, cfg *config.Config) (simplestotage.Stor
 	}
 
 	if cfg.GetFileStoragePath() != "" {
-		fileStorage, err := simplestotage.NewFileStorage(cfg.GetFileStoragePath())
+		fileStorage, err := simpleurl.NewFileStorage(cfg.GetFileStoragePath())
 		if err != nil {
 			return nil, err
 		}
 		return fileStorage, nil
 	}
 
-	mapStorage, err := simplestotage.NewMapStorage()
+	mapStorage, err := simpleurl.NewMapStorage()
 	if err != nil {
 		return nil, err
 	}

@@ -13,6 +13,7 @@ type ShortURLHandler interface {
 	DataBaseStatus(w http.ResponseWriter, r *http.Request)
 	BatchURL(w http.ResponseWriter, r *http.Request)
 	GetAllURL(w http.ResponseWriter, r *http.Request)
+	DeleteURL(w http.ResponseWriter, r *http.Request)
 }
 
 type BaseRouter struct {
@@ -38,6 +39,8 @@ func (br *BaseRouter) Route() *chi.Mux {
 	router.Post("/", br.handler.EncodeURL)
 	router.Post("/api/shorten", br.handler.EncodeAPI)
 	router.Post("/api/shorten/batch", br.handler.BatchURL)
+
+	router.Delete("/api/user/urls", br.handler.DeleteURL)
 
 	return router
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"github.com/jackc/pgx/v5/pgconn"
 	"io"
 	"net/http"
@@ -14,6 +15,7 @@ type encoder interface {
 	BatchEncode(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
+	DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error
 	Ping() error
 }
 
@@ -63,6 +65,10 @@ func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	url, ok := s.encoder.Decode(id)
 
 	if !ok {
+		if url == "410" {
+			http.Error(w, "Deleted key ", http.StatusGone)
+			return
+		}
 		http.Error(w, "Empty key", http.StatusBadRequest)
 		return
 	}

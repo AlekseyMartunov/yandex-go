@@ -1,6 +1,7 @@
-package simplestotage
+package simpleurl
 
 import (
+	"context"
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"sync"
@@ -58,6 +59,10 @@ func (s *MapStorage) GetShorted(key string) (string, bool) {
 
 func (s *MapStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
+}
+
+func (s *MapStorage) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
+	return nil
 }
 
 func (s *MapStorage) Ping() error {
