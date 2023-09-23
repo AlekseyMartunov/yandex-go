@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"github.com/jackc/pgx/v5/pgconn"
 	"io"
@@ -63,8 +62,6 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Some server error", http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println("url:", data, "UserID:", userID, "encoded:", encodedData)
 
 	id := s.cfg.GetShorterURL() + encodedData
 	w.WriteHeader(http.StatusCreated)
