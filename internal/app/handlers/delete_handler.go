@@ -34,7 +34,7 @@ func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (s *ShortURLHandler) asyncDelURl() {
+func (s *ShortURLHandler) asyncDelURL() {
 	ticker := time.NewTicker(10 * time.Second)
 
 	var messages []simpleurl.URLToDel

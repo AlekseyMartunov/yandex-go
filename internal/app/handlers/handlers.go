@@ -35,9 +35,9 @@ func NewShortURLHandler(e encoder, c config) *ShortURLHandler {
 		encoder: e,
 		cfg:     c,
 	}
-	h.delCh = make(chan simpleurl.URLToDel, 100)
+	h.delCh = make(chan simpleurl.URLToDel, 1024)
 
-	go h.asyncDelURl()
+	go h.asyncDelURL()
 	return &h
 }
 
