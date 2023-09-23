@@ -2,9 +2,9 @@ package simpleurl
 
 import (
 	"bufio"
-	"context"
 	"encoding/json"
 	"errors"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/jackc/pgx/v5/pgconn"
 	"os"
 	"sync"
@@ -114,7 +114,7 @@ func (s *FileStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
 }
 
-func (s *FileStorage) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
+func (s *FileStorage) DeleteURL(...handlers.URLToDel) error {
 	return nil
 }
 

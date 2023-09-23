@@ -1,6 +1,8 @@
 package encoder
 
-import "context"
+import (
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
+)
 
 type storage interface {
 	Save(key, val, userID string) error
@@ -8,7 +10,7 @@ type storage interface {
 	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
-	DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error
+	DeleteURL(...handlers.URLToDel) error
 	Ping() error
 }
 
@@ -65,8 +67,8 @@ func (e *Encoder) GetAllURL(userID string) ([][2]string, error) {
 	return res, nil
 }
 
-func (e *Encoder) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
-	return e.storage.DeleteURLByUserID(useID, ctx, ch)
+func (e *Encoder) DeleteURL(messages ...handlers.URLToDel) error {
+	return e.storage.DeleteURL(messages...)
 }
 
 func (e *Encoder) Ping() error {

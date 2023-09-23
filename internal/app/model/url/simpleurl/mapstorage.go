@@ -1,8 +1,8 @@
 package simpleurl
 
 import (
-	"context"
 	"errors"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/jackc/pgx/v5/pgconn"
 	"sync"
 )
@@ -61,7 +61,7 @@ func (s *MapStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
 }
 
-func (s *MapStorage) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
+func (s *MapStorage) DeleteURL(...handlers.URLToDel) error {
 	return nil
 }
 

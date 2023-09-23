@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"github.com/jackc/pgx/v5/pgconn"
 	"io"
 	"net/http"
@@ -15,7 +14,7 @@ type encoder interface {
 	BatchEncode(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
-	DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error
+	DeleteURL(...URLToDel) error
 	Ping() error
 }
 
@@ -27,10 +26,18 @@ type config interface {
 type ShortURLHandler struct {
 	encoder encoder
 	cfg     config
+	delCh   chan URLToDel
 }
 
 func NewShortURLHandler(e encoder, c config) *ShortURLHandler {
-	return &ShortURLHandler{encoder: e, cfg: c}
+	h := ShortURLHandler{
+		encoder: e,
+		cfg:     c,
+	}
+	h.delCh = make(chan URLToDel, 100)
+
+	go h.asyncDelURl()
+	return &h
 }
 
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {

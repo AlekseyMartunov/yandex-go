@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -124,8 +125,8 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 
 }
 
-func (m *URLModel) DeleteURLByUserID(useID string, ctx context.Context, ch chan string) error {
-	chOut := fanIn(ctx, ch)
+func (m *URLModel) DeleteURL(messages ...handlers.URLToDel) error {
+	ctx := context.Background()
 
 	tx, err := m.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -143,25 +144,13 @@ func (m *URLModel) DeleteURLByUserID(useID string, ctx context.Context, ch chan 
 	}
 	defer stmt.Close()
 
-	for data := range chOut {
-		_, err := stmt.ExecContext(ctx, data, useID)
+	for _, msg := range messages {
+		_, err := stmt.ExecContext(ctx, msg.URL, msg.UserId)
 		if err != nil {
 			return err
 		}
 	}
 	return tx.Commit()
-}
-
-func fanIn(ctx context.Context, inCh chan string) chan string {
-	finalChan := make(chan string)
-	go func() {
-		defer close(finalChan)
-		for val := range inCh {
-			finalChan <- val
-		}
-	}()
-
-	return finalChan
 }
 
 func (m *URLModel) Close() error {
