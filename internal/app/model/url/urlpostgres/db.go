@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -130,29 +131,24 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	ctx := context.Background()
 
-	tx, err := m.db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
 	query := `UPDATE url 
 				SET deleted = TRUE
 				WHERE shorted = $1 AND user_id = $2;`
 
-	stmt, err := tx.PrepareContext(ctx, query)
+	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
 	for _, msg := range messages {
-		_, err := stmt.ExecContext(ctx, msg.URL, msg.UserId)
+		_, err := stmt.ExecContext(ctx, msg.URL, msg.UserID)
+		fmt.Println("to del:", msg.URL, msg.UserID)
 		if err != nil {
 			return err
 		}
 	}
-	return tx.Commit()
+	return nil
 }
 
 func (m *URLModel) Close() error {

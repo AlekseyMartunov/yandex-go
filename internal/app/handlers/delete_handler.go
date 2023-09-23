@@ -25,7 +25,7 @@ func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 
 	for _, val := range data {
 		msg := simpleurl.URLToDel{
-			UserId: userID,
+			UserID: userID,
 			URL:    val,
 		}
 		s.delCh <- msg
@@ -35,7 +35,7 @@ func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ShortURLHandler) asyncDelURL() {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 
 	var messages []simpleurl.URLToDel
 

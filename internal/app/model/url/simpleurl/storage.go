@@ -18,6 +18,6 @@ type fileLine struct {
 }
 
 type URLToDel struct {
-	UserId string
+	UserID string
 	URL    string
 }
