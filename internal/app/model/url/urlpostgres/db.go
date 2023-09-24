@@ -131,7 +131,7 @@ func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 
 	query := `UPDATE url 
 				SET deleted = TRUE
-				WHERE shorted = $1 ` //AND user_id = $2;
+				WHERE shorted = $1 AND user_id = $2;`
 
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {

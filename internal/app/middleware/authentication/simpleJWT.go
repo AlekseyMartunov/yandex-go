@@ -10,6 +10,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+const authorizationURL = "/api/user/urls"
+
 type userStorage interface {
 	GetFreeID() (int, error)
 	SaveNewUser() (int, error)
@@ -40,12 +42,13 @@ func NewTokenController(u userStorage) *TokenController {
 func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		token := r.Header.Get("Authorization")
-		userID := t.getUserID(token)
-		if userID == -1 {
+		cookie, err := r.Cookie("Authorization")
+		userID := t.getUserID(cookie.String())
 
-			if r.URL.Path == "/api/user/urls" && r.Method == http.MethodGet {
-				http.Error(w, "Invalid token", http.StatusNoContent)
+		if userID == -1 || err != nil {
+
+			if r.URL.Path == authorizationURL && r.Method == http.MethodGet {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
@@ -60,8 +63,13 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 			}
 
 			newToken := t.createToken(id)
+			newCookie := http.Cookie{
+				Name:  "Authorization",
+				Value: newToken,
+			}
+			http.SetCookie(w, &newCookie)
+
 			r.Header.Add("userID", strconv.Itoa(id))
-			w.Header().Add("Authorization", newToken)
 		}
 
 		r.Header.Add("userID", strconv.Itoa(userID))
