@@ -74,7 +74,6 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 				Value: newToken,
 			}
 			http.SetCookie(w, &newCookie)
-
 		}
 
 		r.Header.Add("userID", strconv.Itoa(userID))
