@@ -62,18 +62,19 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 				log.Fatalln(err)
 			}
 
-			userID, err := t.users.GetFreeID()
+			id, err := t.users.GetFreeID()
 			if err != nil {
 				log.Fatalln(err)
 			}
 
-			newToken := t.createToken(userID)
-			fmt.Println("Creating new cookie with id:", userID)
+			newToken := t.createToken(id)
+			fmt.Println("Creating new cookie with id:", id)
 			newCookie := http.Cookie{
 				Name:  "token",
 				Value: newToken,
 			}
 			http.SetCookie(w, &newCookie)
+			r.Header.Add("userID", strconv.Itoa(id))
 		}
 
 		r.Header.Add("userID", strconv.Itoa(userID))
