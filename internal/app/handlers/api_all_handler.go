@@ -14,6 +14,14 @@ type arrAllURL []allURL
 
 func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("userID")
+
+	_, err := r.Cookie("token")
+
+	if err != nil {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
+
 	data, err := s.encoder.GetAllURL(userID)
 	if err != nil {
 		http.Error(w, "Some server error", http.StatusInternalServerError)

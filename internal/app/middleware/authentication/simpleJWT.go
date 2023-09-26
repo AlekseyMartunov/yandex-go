@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -47,34 +46,24 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 		cookie, err := r.Cookie("token")
 		userID := t.getUserID(cookie.String())
 
-		fmt.Println("token:", cookie.String())
-		fmt.Println("userID", userID)
-
 		if userID == -1 || err != nil {
-
-			if r.URL.Path == authorizationURL && r.Method == http.MethodGet {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
-				return
-			}
 
 			_, err := t.users.SaveNewUser()
 			if err != nil {
 				log.Fatalln(err)
 			}
 
-			id, err := t.users.GetFreeID()
+			userID, err = t.users.GetFreeID()
 			if err != nil {
 				log.Fatalln(err)
 			}
 
-			newToken := t.createToken(id)
-			fmt.Println("Creating new cookie with id:", id)
+			newToken := t.createToken(userID)
 			newCookie := http.Cookie{
 				Name:  "token",
 				Value: newToken,
 			}
 			http.SetCookie(w, &newCookie)
-			r.Header.Add("userID", strconv.Itoa(id))
 		}
 
 		r.Header.Add("userID", strconv.Itoa(userID))
