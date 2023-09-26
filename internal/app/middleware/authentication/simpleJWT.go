@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"crypto/rand"
 	"log"
 	"net/http"
 	"strconv"
@@ -28,11 +27,12 @@ type TokenController struct {
 }
 
 func NewTokenController(u userStorage) *TokenController {
-	key := make([]byte, 32)
-	_, err := rand.Read(key)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	//key := make([]byte, 32)
+	//_, err := rand.Read(key)
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	key := []byte("secret_key")
 	return &TokenController{
 		users:     u,
 		secretKey: key,
@@ -42,7 +42,7 @@ func NewTokenController(u userStorage) *TokenController {
 func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		cookie, err := r.Cookie("Authorization")
+		cookie, err := r.Cookie("token")
 		userID := t.getUserID(cookie.String())
 
 		if userID == -1 || err != nil {
@@ -64,7 +64,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 
 			newToken := t.createToken(id)
 			newCookie := http.Cookie{
-				Name:  "Authorization",
+				Name:  "token",
 				Value: newToken,
 			}
 			http.SetCookie(w, &newCookie)
