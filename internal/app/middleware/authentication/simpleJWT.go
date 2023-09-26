@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -98,6 +99,9 @@ func (t *TokenController) getUserID(tokenString string) int {
 	if tokenString == "" {
 		return -1
 	}
+
+	tokenString = strings.Split(tokenString, "=")[1]
+
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims,
 		func(token *jwt.Token) (interface{}, error) {
