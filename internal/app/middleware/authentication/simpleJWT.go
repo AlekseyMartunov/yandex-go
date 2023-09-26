@@ -43,13 +43,13 @@ func NewTokenController(u userStorage) *TokenController {
 func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		cookie, err := r.Cookie("token")
+		cookie, _ := r.Cookie("token")
 		userID := t.getUserID(cookie.String())
 
-		if userID == -1 || err != nil {
+		if userID == -1 {
 
 			if r.URL.Path == authorizationURL && r.Method == http.MethodGet {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				http.Error(w, "Invalid token", http.StatusNoContent)
 				return
 			}
 
@@ -96,6 +96,7 @@ func (t *TokenController) createToken(id int) string {
 }
 
 func (t *TokenController) getUserID(tokenString string) int {
+
 	if tokenString == "" {
 		return -1
 	}
