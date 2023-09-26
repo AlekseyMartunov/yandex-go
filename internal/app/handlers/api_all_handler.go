@@ -20,7 +20,7 @@ func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Println("return StatusUnauthorized, user id", userID)
-		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		http.Error(w, "Invalid token", http.StatusNoContent)
 		return
 	}
 
