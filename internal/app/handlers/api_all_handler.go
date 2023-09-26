@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -18,6 +19,7 @@ func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie("token")
 
 	if err != nil {
+		fmt.Println("return StatusUnauthorized, user id", userID)
 		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}

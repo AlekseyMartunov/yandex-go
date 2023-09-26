@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -45,6 +46,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 
 		cookie, err := r.Cookie("token")
 		userID := t.getUserID(cookie.String())
+		fmt.Println("user:", userID)
 
 		if userID == -1 || err != nil {
 
@@ -57,6 +59,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 			if err != nil {
 				log.Fatalln(err)
 			}
+			fmt.Println("creating new token, id:", userID)
 
 			newToken := t.createToken(userID)
 			newCookie := http.Cookie{
@@ -66,6 +69,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 			http.SetCookie(w, &newCookie)
 		}
 
+		fmt.Println("set new user ID", userID)
 		r.Header.Add("userID", strconv.Itoa(userID))
 
 		next.ServeHTTP(w, r)
