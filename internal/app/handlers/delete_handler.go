@@ -14,6 +14,7 @@ type Str []string
 
 func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("UserId")
+	fmt.Println("userId in Handler", userID)
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "read request body error", http.StatusInternalServerError)

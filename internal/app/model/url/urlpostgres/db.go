@@ -140,7 +140,7 @@ func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	defer stmt.Close()
 
 	for _, msg := range messages {
-		_, err := stmt.ExecContext(ctx, msg.URL)
+		_, err := stmt.ExecContext(ctx, msg.URL, msg.UserID)
 		if err != nil {
 			return err
 		}
