@@ -24,7 +24,7 @@ func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
-	conn, err := getConn("pxg", cfg)
+	conn, err := getConn("pgx", cfg)
 	if err != nil {
 		panic(err)
 	}
