@@ -1,7 +1,6 @@
 package simpleusers
 
 type Users interface {
-	GetFreeID() (int, error)
 	SaveNewUser() (int, error)
 }
 
@@ -13,10 +12,6 @@ func NewUser() *User {
 	return &User{
 		id: 0,
 	}
-}
-
-func (u *User) GetFreeID() (int, error) {
-	return u.id + 1, nil
 }
 
 func (u *User) SaveNewUser() (int, error) {

@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"crypto/rand"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,10 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-const authorizationURL = "/api/user/urls"
-
 type userStorage interface {
-	GetFreeID() (int, error)
 	SaveNewUser() (int, error)
 }
 
@@ -29,12 +27,12 @@ type TokenController struct {
 }
 
 func NewTokenController(u userStorage) *TokenController {
-	//key := make([]byte, 32)
-	//_, err := rand.Read(key)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	key := []byte("secret_key")
+	key := make([]byte, 32)
+	_, err := rand.Read(key)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//key := []byte("secret_key")
 	return &TokenController{
 		users:     u,
 		secretKey: key,
@@ -50,15 +48,11 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 
 		if userID == -1 || err != nil {
 
-			_, err = t.users.SaveNewUser()
+			userID, err = t.users.SaveNewUser()
 			if err != nil {
 				log.Fatalln(err)
 			}
 
-			userID, err = t.users.GetFreeID()
-			if err != nil {
-				log.Fatalln(err)
-			}
 			fmt.Println("creating new token, id:", userID)
 
 			newToken := t.createToken(userID)
@@ -69,7 +63,6 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 			http.SetCookie(w, &newCookie)
 		}
 
-		fmt.Println("set new user ID", userID)
 		r.Header.Add("userID", strconv.Itoa(userID))
 
 		next.ServeHTTP(w, r)
