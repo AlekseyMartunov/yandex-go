@@ -17,11 +17,11 @@ func (e *Encoder) generateRandomID() string {
 
 	id := getRandomValues()
 
-	_, ok := e.storage.Get(id)
+	_, err := e.storage.Get(id)
 
-	for ok {
+	for err == nil {
 		id = getRandomValues()
-		_, ok = e.storage.Get(id)
+		_, err = e.storage.Get(id)
 	}
 
 	return id

@@ -6,7 +6,7 @@ import (
 
 type storage interface {
 	Save(key, val, userID string) error
-	Get(string) (string, bool)
+	Get(string) (string, error)
 	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
@@ -31,9 +31,9 @@ func (e *Encoder) Encode(url, userID string) (string, error) {
 	return id, nil
 }
 
-func (e *Encoder) Decode(id string) (string, bool) {
-	url, ok := e.storage.Get(id)
-	return url, ok
+func (e *Encoder) Decode(id string) (string, error) {
+	url, err := e.storage.Get(id)
+	return url, err
 }
 
 func (e *Encoder) BatchEncode(data *[][3]string, userID string) error {

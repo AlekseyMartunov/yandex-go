@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"github.com/jackc/pgx/v5/pgconn"
 	"io"
@@ -11,7 +12,7 @@ import (
 
 type encoder interface {
 	Encode(url, userID string) (string, error)
-	Decode(string) (string, bool)
+	Decode(string) (string, error)
 	BatchEncode(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
@@ -70,15 +71,18 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 
 func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "url_id")
-	url, ok := s.encoder.Decode(id)
+	url, err := s.encoder.Decode(id)
 
-	if !ok {
-		if url == "410" {
+	if err != nil {
+		if errors.Is(err, simpleurl.DeletedURLError) {
 			http.Error(w, "Deleted key ", http.StatusGone)
 			return
+
 		}
-		http.Error(w, "Empty key", http.StatusBadRequest)
-		return
+		if errors.Is(err, simpleurl.EmptyKeyError) {
+			http.Error(w, "Empty key", http.StatusBadRequest)
+			return
+		}
 	}
 
 	w.Header().Set("Location", url)

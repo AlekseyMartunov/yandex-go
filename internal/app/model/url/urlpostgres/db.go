@@ -37,7 +37,7 @@ func (m *URLModel) Save(key, val, userID string) error {
 	return nil
 }
 
-func (m *URLModel) Get(key string) (string, bool) {
+func (m *URLModel) Get(key string) (string, error) {
 	query := "SELECT original, deleted FROM url WHERE shorted = $1"
 	row := m.db.QueryRowContext(context.Background(), query, key)
 
@@ -46,10 +46,14 @@ func (m *URLModel) Get(key string) (string, bool) {
 	row.Scan(&original, &flag)
 
 	if flag {
-		return "410", false
+		return "", simpleurl.DeletedURLError
 	}
 
-	return original.String, original.Valid
+	if original.Valid {
+		return original.String, nil
+	}
+
+	return original.String, simpleurl.EmptyKeyError
 }
 
 func (m *URLModel) SaveBatch(data *[][3]string, userID string) error {

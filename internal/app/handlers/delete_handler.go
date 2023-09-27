@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -14,7 +14,6 @@ type Str []string
 
 func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("UserId")
-	fmt.Println("userId in Handler", userID)
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "read request body error", http.StatusInternalServerError)
@@ -51,7 +50,7 @@ func (s *ShortURLHandler) asyncDelURL() {
 			}
 			err := s.encoder.DeleteURL(messages...)
 			if err != nil {
-				fmt.Println(err)
+				log.Fatalln(err)
 				continue
 			}
 			messages = nil

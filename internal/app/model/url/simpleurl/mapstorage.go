@@ -29,9 +29,14 @@ func (s *MapStorage) Save(key, val, userID string) error {
 	return nil
 }
 
-func (s *MapStorage) Get(key string) (string, bool) {
+func (s *MapStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
-	return val, ok
+
+	if !ok {
+		return "", EmptyKeyError
+	}
+
+	return val, nil
 }
 
 func (s *MapStorage) SaveBatch(data *[][3]string, userID string) error {

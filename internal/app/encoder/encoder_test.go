@@ -35,9 +35,9 @@ func TestStorage(t *testing.T) {
 
 	for id, val := range testCase {
 		key := keys[id]
-		res, ok := e.Decode(key)
+		res, err := e.Decode(key)
 
-		assert.True(t, ok, fmt.Sprintf("Ключ %s, не найден в мапе!", val))
+		assert.Equal(t, nil, err, fmt.Sprintf("Ключ %s, не найден в мапе!", val))
 
 		assert.Equal(t, val, res, fmt.Sprintf("Мапа вернула: %s, а нужно: %s", res, val))
 

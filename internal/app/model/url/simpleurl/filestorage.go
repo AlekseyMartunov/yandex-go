@@ -79,9 +79,13 @@ func (s *FileStorage) Save(key, val, userID string) error {
 	return err
 }
 
-func (s *FileStorage) Get(key string) (string, bool) {
+func (s *FileStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
-	return val, ok
+
+	if !ok {
+		return "", EmptyKeyError
+	}
+	return val, nil
 }
 
 func (s *FileStorage) SaveBatch(data *[][3]string, userID string) error {
