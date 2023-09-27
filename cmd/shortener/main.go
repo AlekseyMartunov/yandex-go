@@ -24,14 +24,17 @@ func main() {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
-	URLDB, err := createStorageURL("pgx", cfg)
+	conn, err := getConn("pxg", cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	defer URLDB.Close()
+	URLDB, err := createStorageURL(conn, cfg)
+	if err != nil {
+		panic(err)
+	}
 
-	dbUser, err := createStorageUser("pgx", cfg)
+	dbUser, err := createStorageUser(conn, cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -55,18 +58,9 @@ func main() {
 	}
 }
 
-func createStorageURL(driverName string, cfg *config.Config) (simpleurl.Storage, error) {
-	if cfg.GetDataBaseDSN() != "" {
-		conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
-		if err != nil {
-			return nil, err
-		}
-		err = migrations.MakeMigration(conn)
-		if err != nil {
-			return nil, err
-		}
-		postgresDB := urlpostgres.NewDB(conn)
-		return postgresDB, nil
+func createStorageURL(conn *sql.DB, cfg *config.Config) (simpleurl.Storage, error) {
+	if conn != nil && cfg.GetDataBaseDSN() != "" {
+		return urlpostgres.NewDB(conn), nil
 	}
 
 	if cfg.GetFileStoragePath() != "" {
@@ -84,18 +78,24 @@ func createStorageURL(driverName string, cfg *config.Config) (simpleurl.Storage,
 	return mapStorage, nil
 }
 
-func createStorageUser(driverName string, cfg *config.Config) (simpleusers.Users, error) {
+func createStorageUser(conn *sql.DB, cfg *config.Config) (simpleusers.Users, error) {
+	if conn != nil && cfg.GetDataBaseDSN() != "" {
+		return userspostgres.NewUserModel(conn), nil
+	}
+	return simpleusers.NewUser(), nil
+}
+
+func getConn(driverName string, cfg *config.Config) (*sql.DB, error) {
 	if cfg.GetDataBaseDSN() != "" {
 		conn, err := sql.Open(driverName, cfg.GetDataBaseDSN())
 		if err != nil {
-			return simpleusers.NewUser(), nil
+			return nil, err
 		}
 		err = migrations.MakeMigration(conn)
 		if err != nil {
 			return nil, err
 		}
-		return userspostgres.NewUserModel(conn), nil
+		return conn, nil
 	}
-	return simpleusers.NewUser(), nil
-
+	return nil, nil
 }

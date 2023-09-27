@@ -3,6 +3,7 @@ package userspostgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 )
 
 type UserModel struct {
@@ -10,6 +11,7 @@ type UserModel struct {
 }
 
 func NewUserModel(db *sql.DB) *UserModel {
+	fmt.Println("new postgres user")
 	return &UserModel{
 		db: db,
 	}
@@ -24,6 +26,7 @@ func (u *UserModel) GetFreeID() (int, error) {
 	if err != nil {
 		return -1, err
 	}
+	fmt.Println("count:", count)
 	return count, nil
 }
 

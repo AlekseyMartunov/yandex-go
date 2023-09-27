@@ -50,7 +50,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 
 		if userID == -1 || err != nil {
 
-			_, err := t.users.SaveNewUser()
+			_, err = t.users.SaveNewUser()
 			if err != nil {
 				log.Fatalln(err)
 			}

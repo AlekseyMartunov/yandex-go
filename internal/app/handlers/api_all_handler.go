@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -15,14 +14,6 @@ type arrAllURL []allURL
 
 func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("userID")
-
-	_, err := r.Cookie("token")
-
-	if err != nil {
-		fmt.Println("return StatusUnauthorized, user id", userID)
-		http.Error(w, "Invalid token", http.StatusNoContent)
-		return
-	}
 
 	data, err := s.encoder.GetAllURL(userID)
 	if err != nil {
