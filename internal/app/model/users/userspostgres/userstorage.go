@@ -2,6 +2,7 @@ package userspostgres
 
 import (
 	"context"
+
 	"database/sql"
 )
 
@@ -22,7 +23,8 @@ func (u *UserModel) SaveNewUser() (int, error) {
 	var userID int
 	err := row.Scan(&userID)
 	if err != nil {
-		return -1, err
+		var id int
+		return id, err
 	}
 	return userID, nil
 }

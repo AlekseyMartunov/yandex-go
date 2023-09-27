@@ -42,6 +42,10 @@ func NewShortURLHandler(e encoder, c config) *ShortURLHandler {
 	return &h
 }
 
+func (s *ShortURLHandler) Close() {
+	close(s.delCh)
+}
+
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/plain")
 	data, err := io.ReadAll(r.Body)

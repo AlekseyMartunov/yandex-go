@@ -4,6 +4,8 @@ type Users interface {
 	SaveNewUser() (int, error)
 }
 
+type EmptyUserID int
+
 type User struct {
 	id int
 }
@@ -16,5 +18,5 @@ func NewUser() *User {
 
 func (u *User) SaveNewUser() (int, error) {
 	u.id++
-	return -1, nil
+	return u.id, nil
 }

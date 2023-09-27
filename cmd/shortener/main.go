@@ -28,6 +28,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	if conn != nil {
+		defer conn.Close()
+	}
 
 	URLDB, err := createStorageURL(conn, cfg)
 	if err != nil {
@@ -41,6 +44,8 @@ func main() {
 
 	encoder := encoder.NewEncoder(URLDB)
 	handler := handlers.NewShortURLHandler(encoder, cfg)
+
+	defer handler.Close()
 
 	tokenController := authentication.NewTokenController(dbUser)
 	log := logger.NewLogger("info")
