@@ -33,7 +33,7 @@ func (s *MapStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
 
 	if !ok {
-		return "", EmptyKeyError
+		return "", ErrEmptyKey
 	}
 
 	return val, nil

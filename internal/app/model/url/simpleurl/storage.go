@@ -13,8 +13,10 @@ type Storage interface {
 	Close() error
 }
 
-var DeletedURLError = errors.New("this URL is deleted")
-var EmptyKeyError = errors.New("empty key")
+var (
+	ErrDeletedURL = errors.New("this URL is deleted")
+	ErrEmptyKey   = errors.New("empty key")
+)
 
 type fileLine struct {
 	UUID        int    `json:"uuid"`

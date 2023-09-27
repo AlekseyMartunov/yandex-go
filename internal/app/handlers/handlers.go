@@ -74,12 +74,12 @@ func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	url, err := s.encoder.Decode(id)
 
 	if err != nil {
-		if errors.Is(err, simpleurl.DeletedURLError) {
+		if errors.Is(err, simpleurl.ErrDeletedURL) {
 			http.Error(w, "Deleted key ", http.StatusGone)
 			return
 
 		}
-		if errors.Is(err, simpleurl.EmptyKeyError) {
+		if errors.Is(err, simpleurl.ErrEmptyKey) {
 			http.Error(w, "Empty key", http.StatusBadRequest)
 			return
 		}

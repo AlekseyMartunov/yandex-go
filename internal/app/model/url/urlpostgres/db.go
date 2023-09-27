@@ -46,14 +46,14 @@ func (m *URLModel) Get(key string) (string, error) {
 	row.Scan(&original, &flag)
 
 	if flag {
-		return "", simpleurl.DeletedURLError
+		return "", simpleurl.ErrDeletedURL
 	}
 
 	if original.Valid {
 		return original.String, nil
 	}
 
-	return original.String, simpleurl.EmptyKeyError
+	return original.String, simpleurl.ErrEmptyKey
 }
 
 func (m *URLModel) SaveBatch(data *[][3]string, userID string) error {
