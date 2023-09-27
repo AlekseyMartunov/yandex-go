@@ -92,6 +92,7 @@ func (t *TokenController) getUserID(tokenString string) int {
 	}
 
 	tokenString = strings.Split(tokenString, "=")[1]
+	fmt.Println("old token:", tokenString)
 
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims,
