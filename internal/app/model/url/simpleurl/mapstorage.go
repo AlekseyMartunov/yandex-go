@@ -1,9 +1,10 @@
-package simplestotage
+package simpleurl
 
 import (
 	"errors"
-	"github.com/jackc/pgx/v5/pgconn"
 	"sync"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type MapStorage struct {
@@ -28,9 +29,14 @@ func (s *MapStorage) Save(key, val, userID string) error {
 	return nil
 }
 
-func (s *MapStorage) Get(key string) (string, bool) {
+func (s *MapStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
-	return val, ok
+
+	if !ok {
+		return "", ErrEmptyKey
+	}
+
+	return val, nil
 }
 
 func (s *MapStorage) SaveBatch(data *[][3]string, userID string) error {
@@ -58,6 +64,10 @@ func (s *MapStorage) GetShorted(key string) (string, bool) {
 
 func (s *MapStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
+}
+
+func (s *MapStorage) DeleteURL(...URLToDel) error {
+	return nil
 }
 
 func (s *MapStorage) Ping() error {

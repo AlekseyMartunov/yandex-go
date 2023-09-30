@@ -14,6 +14,7 @@ type arrAllURL []allURL
 
 func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("userID")
+
 	data, err := s.encoder.GetAllURL(userID)
 	if err != nil {
 		http.Error(w, "Some server error", http.StatusInternalServerError)

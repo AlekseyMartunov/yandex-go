@@ -6,6 +6,8 @@ import (
 	"errors"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
 type URLModel struct {
@@ -35,14 +37,23 @@ func (m *URLModel) Save(key, val, userID string) error {
 	return nil
 }
 
-func (m *URLModel) Get(key string) (string, bool) {
-	query := "SELECT original FROM url WHERE shorted = $1"
+func (m *URLModel) Get(key string) (string, error) {
+	query := "SELECT original, deleted FROM url WHERE shorted = $1"
 	row := m.db.QueryRowContext(context.Background(), query, key)
 
 	var original sql.NullString
-	row.Scan(&original)
+	var flag bool
+	row.Scan(&original, &flag)
 
-	return original.String, original.Valid
+	if flag {
+		return "", simpleurl.ErrDeletedURL
+	}
+
+	if original.Valid {
+		return original.String, nil
+	}
+
+	return original.String, simpleurl.ErrEmptyKey
 }
 
 func (m *URLModel) SaveBatch(data *[][3]string, userID string) error {
@@ -117,6 +128,28 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 
 	return result, nil
 
+}
+
+func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
+	ctx := context.Background()
+
+	query := `UPDATE url 
+				SET deleted = TRUE
+				WHERE shorted = $1 AND user_id = $2;`
+
+	stmt, err := m.db.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	for _, msg := range messages {
+		_, err := stmt.ExecContext(ctx, msg.URL, msg.UserID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m *URLModel) Close() error {

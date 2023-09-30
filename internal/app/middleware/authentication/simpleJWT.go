@@ -5,13 +5,13 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type userStorage interface {
-	GetFreeID() (int, error)
 	SaveNewUser() (int, error)
 }
 
@@ -31,6 +31,7 @@ func NewTokenController(u userStorage) *TokenController {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	//key := []byte("secret_key")
 	return &TokenController{
 		users:     u,
 		secretKey: key,
@@ -40,28 +41,22 @@ func NewTokenController(u userStorage) *TokenController {
 func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		token := r.Header.Get("Authorization")
-		userID := t.getUserID(token)
-		if userID == -1 {
+		cookie, err := r.Cookie("token")
+		userID := t.getUserID(cookie.String())
 
-			if r.URL.Path == "/api/user/urls" {
-				http.Error(w, "Invalid token", http.StatusNoContent)
-				return
-			}
+		if userID == -1 || err != nil {
 
-			_, err := t.users.SaveNewUser()
+			userID, err = t.users.SaveNewUser()
 			if err != nil {
 				log.Fatalln(err)
 			}
 
-			id, err := t.users.GetFreeID()
-			if err != nil {
-				log.Fatalln(err)
+			newToken := t.createToken(userID)
+			newCookie := http.Cookie{
+				Name:  "token",
+				Value: newToken,
 			}
-
-			newToken := t.createToken(id)
-			r.Header.Add("userID", strconv.Itoa(id))
-			w.Header().Add("Authorization", newToken)
+			http.SetCookie(w, &newCookie)
 		}
 
 		r.Header.Add("userID", strconv.Itoa(userID))
@@ -87,9 +82,13 @@ func (t *TokenController) createToken(id int) string {
 }
 
 func (t *TokenController) getUserID(tokenString string) int {
+
 	if tokenString == "" {
 		return -1
 	}
+
+	tokenString = strings.Split(tokenString, "=")[1]
+
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims,
 		func(token *jwt.Token) (interface{}, error) {

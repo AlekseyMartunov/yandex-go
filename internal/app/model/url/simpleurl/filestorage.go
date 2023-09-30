@@ -1,12 +1,13 @@
-package simplestotage
+package simpleurl
 
 import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"github.com/jackc/pgx/v5/pgconn"
 	"os"
 	"sync"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type FileStorage struct {
@@ -78,9 +79,13 @@ func (s *FileStorage) Save(key, val, userID string) error {
 	return err
 }
 
-func (s *FileStorage) Get(key string) (string, bool) {
+func (s *FileStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
-	return val, ok
+
+	if !ok {
+		return "", ErrEmptyKey
+	}
+	return val, nil
 }
 
 func (s *FileStorage) SaveBatch(data *[][3]string, userID string) error {
@@ -111,6 +116,10 @@ func (s *FileStorage) GetShorted(key string) (string, bool) {
 
 func (s *FileStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
+}
+
+func (s *FileStorage) DeleteURL(...URLToDel) error {
+	return nil
 }
 
 func (s *FileStorage) Ping() error {

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"github.com/jackc/pgx/v5/pgconn"
 	"io"
 	"net/http"
@@ -10,10 +12,11 @@ import (
 
 type encoder interface {
 	Encode(url, userID string) (string, error)
-	Decode(string) (string, bool)
+	Decode(string) (string, error)
 	BatchEncode(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
+	DeleteURL(...simpleurl.URLToDel) error
 	Ping() error
 }
 
@@ -25,10 +28,22 @@ type config interface {
 type ShortURLHandler struct {
 	encoder encoder
 	cfg     config
+	delCh   chan simpleurl.URLToDel
 }
 
 func NewShortURLHandler(e encoder, c config) *ShortURLHandler {
-	return &ShortURLHandler{encoder: e, cfg: c}
+	h := ShortURLHandler{
+		encoder: e,
+		cfg:     c,
+	}
+	h.delCh = make(chan simpleurl.URLToDel, 1024)
+
+	go h.asyncDelURL()
+	return &h
+}
+
+func (s *ShortURLHandler) Close() {
+	close(s.delCh)
 }
 
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
@@ -60,11 +75,18 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 
 func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "url_id")
-	url, ok := s.encoder.Decode(id)
+	url, err := s.encoder.Decode(id)
 
-	if !ok {
-		http.Error(w, "Empty key", http.StatusBadRequest)
-		return
+	if err != nil {
+		if errors.Is(err, simpleurl.ErrDeletedURL) {
+			http.Error(w, "Deleted key ", http.StatusGone)
+			return
+
+		}
+		if errors.Is(err, simpleurl.ErrEmptyKey) {
+			http.Error(w, "Empty key", http.StatusBadRequest)
+			return
+		}
 	}
 
 	w.Header().Set("Location", url)

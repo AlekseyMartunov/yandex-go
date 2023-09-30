@@ -2,7 +2,7 @@ package encoder
 
 import (
 	"fmt"
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simplestotage"
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -35,9 +35,9 @@ func TestStorage(t *testing.T) {
 
 	for id, val := range testCase {
 		key := keys[id]
-		res, ok := e.Decode(key)
+		res, err := e.Decode(key)
 
-		assert.True(t, ok, fmt.Sprintf("Ключ %s, не найден в мапе!", val))
+		assert.Equal(t, nil, err, fmt.Sprintf("Ключ %s, не найден в мапе!", val))
 
 		assert.Equal(t, val, res, fmt.Sprintf("Мапа вернула: %s, а нужно: %s", res, val))
 
