@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"database/sql"
-	"net/http"
-
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"net/http"
+	"os/signal"
+	"syscall"
 
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
@@ -21,6 +23,17 @@ import (
 )
 
 func main() {
+	ctx, stopApp := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stopApp()
+
+	go func() {
+		startServer(ctx)
+	}()
+
+	<-ctx.Done()
+}
+
+func startServer(ctx context.Context) {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
@@ -43,9 +56,7 @@ func main() {
 	}
 
 	encoder := encoder.NewEncoder(URLDB)
-	handler := handlers.NewShortURLHandler(encoder, cfg)
-
-	defer handler.Close()
+	handler := handlers.NewShortURLHandler(encoder, cfg, ctx)
 
 	tokenController := authentication.NewTokenController(dbUser)
 	log := logger.NewLogger("info")

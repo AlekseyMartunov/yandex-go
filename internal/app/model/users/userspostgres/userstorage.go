@@ -23,8 +23,7 @@ func (u *UserModel) SaveNewUser() (int, error) {
 	var userID int
 	err := row.Scan(&userID)
 	if err != nil {
-		var id int
-		return id, err
+		return userID, err
 	}
 	return userID, nil
 }

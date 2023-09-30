@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -28,22 +29,20 @@ type config interface {
 type ShortURLHandler struct {
 	encoder encoder
 	cfg     config
+	ctx     context.Context
 	delCh   chan simpleurl.URLToDel
 }
 
-func NewShortURLHandler(e encoder, c config) *ShortURLHandler {
+func NewShortURLHandler(e encoder, c config, ctx context.Context) *ShortURLHandler {
 	h := ShortURLHandler{
 		encoder: e,
 		cfg:     c,
+		ctx:     ctx,
 	}
 	h.delCh = make(chan simpleurl.URLToDel, 1024)
 
 	go h.asyncDelURL()
 	return &h
-}
-
-func (s *ShortURLHandler) Close() {
-	close(s.delCh)
 }
 
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
