@@ -55,7 +55,9 @@ func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
 		urlArr = append(urlArr, [3]string{val.CorrelationID, val.OriginalURL, ""})
 	}
 
-	err = s.encoder.BatchEncode(&urlArr)
+	userID := r.Header.Get("userID")
+
+	err = s.encoder.BatchEncode(&urlArr, userID)
 	if err != nil {
 		http.Error(w, "Saving error", http.StatusBadRequest)
 		return

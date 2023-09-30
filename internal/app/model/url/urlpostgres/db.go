@@ -1,4 +1,4 @@
-package postgres
+package urlpostgres
 
 import (
 	"context"
@@ -18,25 +18,13 @@ func NewDB(db *sql.DB) *URLModel {
 	}
 }
 
-func (m *URLModel) CreateTableURL() error {
-	query := `CREATE TABLE IF NOT EXISTS url (
-    					id serial PRIMARY KEY, 
-    					shorted VARCHAR(20),
-    					original TEXT UNIQUE
-    					)`
-
-	_, err := m.db.ExecContext(context.Background(), query)
-	return err
-}
-
 func (m *URLModel) Ping() error {
 	return m.db.Ping()
 }
 
-func (m *URLModel) Save(key, val string) error {
-	query := "INSERT INTO url (shorted, original) VALUES ($1, $2)"
-
-	_, err := m.db.ExecContext(context.Background(), query, key, val)
+func (m *URLModel) Save(key, val, userID string) error {
+	query := "INSERT INTO url (shorted, original, user_id) VALUES ($1, $2, $3)"
+	_, err := m.db.ExecContext(context.Background(), query, key, val, userID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
@@ -57,7 +45,7 @@ func (m *URLModel) Get(key string) (string, bool) {
 	return original.String, original.Valid
 }
 
-func (m *URLModel) SaveBatch(data *[][3]string) error {
+func (m *URLModel) SaveBatch(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
 	// b - OriginalURL
@@ -70,7 +58,7 @@ func (m *URLModel) SaveBatch(data *[][3]string) error {
 	}
 	defer tx.Rollback()
 
-	query := `INSERT INTO url (shorted, original) VALUES ($1, $2)`
+	query := `INSERT INTO url (shorted, original, user_id) VALUES ($1, $2, $3)`
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
@@ -79,7 +67,7 @@ func (m *URLModel) SaveBatch(data *[][3]string) error {
 	defer stmt.Close()
 
 	for _, val := range *data {
-		_, err := stmt.ExecContext(ctx, val[2], val[1])
+		_, err := stmt.ExecContext(ctx, val[2], val[1], userID)
 		if err != nil {
 			return err
 		}
@@ -97,6 +85,38 @@ func (m *URLModel) GetShorted(key string) (string, bool) {
 	row.Scan(&original)
 
 	return original.String, original.Valid
+}
+
+func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
+	query := `SELECT shorted, original FROM url WHERE user_id = $1`
+	rows, err := m.db.QueryContext(context.Background(), query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var result [][2]string
+
+	for rows.Next() {
+		var short string
+		var origin string
+
+		err = rows.Scan(&short, &origin)
+		if err != nil {
+			return nil, err
+		}
+
+		var arr = [2]string{short, origin}
+		result = append(result, arr)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+
 }
 
 func (m *URLModel) Close() error {

@@ -1,10 +1,11 @@
 package encoder
 
 type storage interface {
-	Save(key, val string) error
+	Save(key, val, userID string) error
 	Get(string) (string, bool)
-	SaveBatch(data *[][3]string) error
+	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
+	GetAllURL(userID string) ([][2]string, error)
 	Ping() error
 }
 
@@ -16,9 +17,9 @@ func NewEncoder(s storage) *Encoder {
 	return &Encoder{storage: s}
 }
 
-func (e *Encoder) Encode(url string) (string, error) {
+func (e *Encoder) Encode(url, userID string) (string, error) {
 	id := e.generateRandomID()
-	err := e.storage.Save(id, url)
+	err := e.storage.Save(id, url, userID)
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +31,7 @@ func (e *Encoder) Decode(id string) (string, bool) {
 	return url, ok
 }
 
-func (e *Encoder) BatchEncode(data *[][3]string) error {
+func (e *Encoder) BatchEncode(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
 	// b - OriginalURL
@@ -40,7 +41,7 @@ func (e *Encoder) BatchEncode(data *[][3]string) error {
 		(*data)[id][2] = e.generateRandomID()
 	}
 
-	err := e.storage.SaveBatch(data)
+	err := e.storage.SaveBatch(data, userID)
 	if err != nil {
 		return err
 	}
@@ -51,6 +52,14 @@ func (e *Encoder) BatchEncode(data *[][3]string) error {
 func (e *Encoder) GetShorted(url string) (string, bool) {
 	shorted, ok := e.storage.GetShorted(url)
 	return shorted, ok
+}
+
+func (e *Encoder) GetAllURL(userID string) ([][2]string, error) {
+	res, err := e.storage.GetAllURL(userID)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (e *Encoder) Ping() error {

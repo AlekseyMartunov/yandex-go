@@ -1,10 +1,11 @@
 package simplestotage
 
 type Storage interface {
-	Save(key, val string) error
+	Save(key, val, userID string) error
 	Get(key string) (string, bool)
-	SaveBatch(data *[][3]string) error
+	SaveBatch(data *[][3]string, userID string) error
 	GetShorted(key string) (string, bool)
+	GetAllURL(userID string) ([][2]string, error)
 	Ping() error
 	Close() error
 }
