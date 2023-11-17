@@ -1,36 +1,28 @@
 package encoder
 
-import (
-	"math/rand"
-	"time"
-)
-
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 const size = 15
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func (e *Encoder) generateRandomID() string {
 
-	id := getRandomValues()
+	id := e.getRandomValues()
 
 	_, err := e.storage.Get(id)
 
 	for err == nil {
-		id = getRandomValues()
+		id = e.getRandomValues()
 		_, err = e.storage.Get(id)
 	}
 
 	return id
 }
 
-func getRandomValues() string {
+func (e *Encoder) getRandomValues() string {
+
 	output := make([]rune, size)
 	for i := range output {
-		output[i] = symbolsRunes[rand.Intn(len(symbolsRunes))]
+		output[i] = symbolsRunes[e.random.Intn(len(symbolsRunes))]
 	}
 	return string(output)
 }
