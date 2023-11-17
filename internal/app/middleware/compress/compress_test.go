@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
-	"github.com/go-resty/resty/v2"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-resty/resty/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func testHelpHandler(w http.ResponseWriter, r *http.Request) {

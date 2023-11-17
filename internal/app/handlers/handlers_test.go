@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"context"
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"

@@ -1,13 +1,15 @@
 package tests
 
 import (
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	mockAuthentication "github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication/tests/mocks"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
+
 	"github.com/golang/mock/gomock"
+
+	mockAuthentication "github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication/tests/mocks"
 )
 
 func BenchmarkToken(b *testing.B) {
