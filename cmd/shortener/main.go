@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"net/http"
@@ -65,7 +66,7 @@ func startServer(ctx context.Context) {
 	router := router.NewBaseRouter(
 		handler,
 		log.WithLogging,
-		//compress.Compress,
+		compress.Compress,
 		tokenController.CheckToken,
 	)
 
