@@ -11,6 +11,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+//go:generate mockgen -source simpleJWT.go  -destination tests/mocks/mockuserstorage.go
+
 type userStorage interface {
 	SaveNewUser() (int, error)
 }

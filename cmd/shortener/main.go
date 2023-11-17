@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"net/http"
+	_ "net/http/pprof"
 	"os/signal"
 	"syscall"
 
@@ -12,7 +14,6 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/migrations"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
@@ -64,11 +65,14 @@ func startServer(ctx context.Context) {
 	router := router.NewBaseRouter(
 		handler,
 		log.WithLogging,
-		compress.Compress,
+		//compress.Compress,
 		tokenController.CheckToken,
 	)
 
-	err = http.ListenAndServe(cfg.GetAddress(), router.Route())
+	r := router.Route()
+	r.Mount("/debug", middleware.Profiler())
+
+	err = http.ListenAndServe(cfg.GetAddress(), r)
 	if err != nil {
 		panic(err)
 	}

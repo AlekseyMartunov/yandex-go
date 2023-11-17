@@ -12,3 +12,6 @@ services:
 
 # postgres://username:password@localhost:5432/database_name
 # export DATABASE_DSN=postgres://admin:1234@localhost:5432/test_db
+
+  /
+  yandex-go
