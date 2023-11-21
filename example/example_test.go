@@ -3,19 +3,19 @@ package example
 import (
 	"context"
 	"fmt"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
 )
 
-func ExampleEncodeURL() {
+func Example() {
 	storage, err := simpleurl.NewMapStorage()
 	if err != nil {
 		log.Fatalln(err)
