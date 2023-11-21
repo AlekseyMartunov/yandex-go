@@ -1,3 +1,4 @@
+// Package migrations create migration in db when app starting
 package migrations
 
 import (
@@ -5,6 +6,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
+// MakeMigration check db and if tables does not exist create it
 func MakeMigration(db *sql.DB) error {
 	goose.SetDialect("urlpostgres")
 

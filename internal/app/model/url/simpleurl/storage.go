@@ -1,3 +1,4 @@
+// Package simpleurl uses when database dsn does not exist in config package
 package simpleurl
 
 import "errors"
@@ -13,6 +14,7 @@ type Storage interface {
 	Close() error
 }
 
+// default url errors
 var (
 	ErrDeletedURL = errors.New("this URL is deleted")
 	ErrEmptyKey   = errors.New("empty key")
@@ -24,6 +26,7 @@ type fileLine struct {
 	OriginalURL string `json:"original_url"`
 }
 
+// URLToDel helps delete url
 type URLToDel struct {
 	UserID string
 	URL    string

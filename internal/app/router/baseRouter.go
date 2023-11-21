@@ -1,3 +1,4 @@
+// Package router store endpoints
 package router
 
 import (
@@ -16,11 +17,13 @@ type ShortURLHandler interface {
 	DeleteURL(w http.ResponseWriter, r *http.Request)
 }
 
+// BaseRouter struct applications router
 type BaseRouter struct {
 	handler    ShortURLHandler
 	middleware []func(handler http.Handler) http.Handler
 }
 
+// NewBaseRouter create new instance
 func NewBaseRouter(h ShortURLHandler, m ...func(handler http.Handler) http.Handler) *BaseRouter {
 	return &BaseRouter{
 		handler:    h,
@@ -28,6 +31,7 @@ func NewBaseRouter(h ShortURLHandler, m ...func(handler http.Handler) http.Handl
 	}
 }
 
+// Route return chi router
 func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(br.middleware...)

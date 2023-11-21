@@ -1,3 +1,4 @@
+// Package config  store information about flags application
 package config
 
 import (
@@ -5,6 +6,7 @@ import (
 	"os"
 )
 
+// Config type store information about flags application
 type Config struct {
 	addr            string `env:"SERVER_ADDRESS"`
 	baseHost        string `env:"BASE_URL"`
@@ -13,10 +15,12 @@ type Config struct {
 	dataBaseStatus  bool
 }
 
+// NewConfig create new config struct
 func NewConfig() *Config {
 	return &Config{}
 }
 
+// GetConfig update values of struct
 func (c *Config) GetConfig() {
 
 	flag.StringVar(&c.addr, "a", "127.0.0.1:8080",
@@ -50,26 +54,32 @@ func (c *Config) GetConfig() {
 	}
 }
 
+// GetAddress return address
 func (c *Config) GetAddress() string {
 	return c.addr
 }
 
+// GetShorterURL return prefix of shorten url
 func (c *Config) GetShorterURL() string {
 	return c.baseHost + "/"
 }
 
+// GetFileStoragePath return file storage path
 func (c *Config) GetFileStoragePath() string {
 	return c.fileStoragePath
 }
 
+// GetDataBaseDSN return database dsn
 func (c *Config) GetDataBaseDSN() string {
 	return c.dataBaseDSN
 }
 
+// GetDataBaseStatus return status of db
 func (c *Config) GetDataBaseStatus() bool {
 	return c.dataBaseStatus
 }
 
+// SetDataBaseStatus set db status
 func (c *Config) SetDataBaseStatus(status bool) {
 	c.dataBaseStatus = status
 }

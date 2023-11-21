@@ -1,3 +1,4 @@
+// Package simpleurl uses when database dsn does not exist in config package
 package simpleurl
 
 import (
@@ -7,15 +8,18 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// MapStorage contains a map for store url
 type MapStorage struct {
 	data map[string]string
 	sync.Mutex
 }
 
+// NewMapStorage returns new struct
 func NewMapStorage() (Storage, error) {
 	return &MapStorage{data: make(map[string]string)}, nil
 }
 
+// Save uses to save new url pair
 func (s *MapStorage) Save(key, val, userID string) error {
 	for _, v := range s.data {
 		if v == val {
@@ -29,6 +33,7 @@ func (s *MapStorage) Save(key, val, userID string) error {
 	return nil
 }
 
+// Get uses to get url
 func (s *MapStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
 
@@ -39,6 +44,7 @@ func (s *MapStorage) Get(key string) (string, error) {
 	return val, nil
 }
 
+// SaveBatch save several different urls
 func (s *MapStorage) SaveBatch(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
@@ -53,6 +59,7 @@ func (s *MapStorage) SaveBatch(data *[][3]string, userID string) error {
 	return nil
 }
 
+// GetShorted return shorted url
 func (s *MapStorage) GetShorted(key string) (string, bool) {
 	for k, v := range s.data {
 		if v == key {
@@ -62,18 +69,22 @@ func (s *MapStorage) GetShorted(key string) (string, bool) {
 	return "", false
 }
 
+// GetAllURL just mocks for db interface
 func (s *MapStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
 }
 
+// DeleteURL just mocks for db interface
 func (s *MapStorage) DeleteURL(...URLToDel) error {
 	return nil
 }
 
+// Ping ust mocks for db interface
 func (s *MapStorage) Ping() error {
 	return errors.New("this is a map")
 }
 
+// Close just mocks for db interface
 func (s *MapStorage) Close() error {
 	return nil
 }

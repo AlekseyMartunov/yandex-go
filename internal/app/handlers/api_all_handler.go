@@ -1,3 +1,4 @@
+// Package handlers contains all app s handlers
 package handlers
 
 import (
@@ -5,13 +6,16 @@ import (
 	"net/http"
 )
 
+// allURL struct use to unmarshal http body
 type allURL struct {
 	Shorted  string `json:"short_url"`
 	Original string `json:"original_url"`
 }
 
+// arrAllURL array of allURL
 type arrAllURL []allURL
 
+// GetAllURL return all urls
 func (s *ShortURLHandler) GetAllURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("userID")
 

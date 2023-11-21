@@ -1,3 +1,4 @@
+// Package authentication uses to add authentication by jwt token in to middleware
 package authentication
 
 import (
@@ -17,16 +18,19 @@ type userStorage interface {
 	SaveNewUser() (int, error)
 }
 
+// Claims uses to store info for token
 type Claims struct {
 	jwt.RegisteredClaims
 	UserID int
 }
 
+// TokenController uses to
 type TokenController struct {
 	users     userStorage
 	secretKey []byte
 }
 
+// NewTokenController creates new TokenController struct
 func NewTokenController(u userStorage) *TokenController {
 	key := make([]byte, 32)
 	_, err := rand.Read(key)
@@ -40,6 +44,7 @@ func NewTokenController(u userStorage) *TokenController {
 	}
 }
 
+// CheckToken checks correctness of token
 func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -67,6 +72,7 @@ func (t *TokenController) CheckToken(next http.Handler) http.Handler {
 	})
 }
 
+// createToken creates new token by id
 func (t *TokenController) createToken(id int) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -83,6 +89,7 @@ func (t *TokenController) createToken(id int) string {
 	return tokenString
 }
 
+// getUserID return usr id by token
 func (t *TokenController) getUserID(tokenString string) int {
 
 	if tokenString == "" {
