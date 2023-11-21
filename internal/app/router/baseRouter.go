@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// ShortURLHandler interface show all endpoints in handlers
 type ShortURLHandler interface {
 	EncodeURL(w http.ResponseWriter, r *http.Request)
 	DecodeURL(w http.ResponseWriter, r *http.Request)

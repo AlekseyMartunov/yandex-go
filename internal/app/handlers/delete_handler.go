@@ -11,6 +11,7 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
+// Str array of string for some strange functions :)
 type Str []string
 
 // DeleteURL uses to delete url

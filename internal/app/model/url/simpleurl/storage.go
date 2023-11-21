@@ -3,6 +3,7 @@ package simpleurl
 
 import "errors"
 
+// Storage interface to show witch methods struct need
 type Storage interface {
 	Save(key, val, userID string) error
 	Get(key string) (string, error)

@@ -163,6 +163,7 @@ func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	return nil
 }
 
+// Close uses to close connection to db
 func (m *URLModel) Close() error {
 	return m.db.Close()
 }

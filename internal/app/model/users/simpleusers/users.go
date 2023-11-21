@@ -1,6 +1,7 @@
 // Package simpleusers uses when db dose dot exists
 package simpleusers
 
+// Users interface show witch methods struct need
 type Users interface {
 	SaveNewUser() (int, error)
 }
