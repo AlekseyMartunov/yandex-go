@@ -17,33 +17,24 @@ var ExitAnalyzer = &analysis.Analyzer{
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
 		ast.Inspect(file, func(node ast.Node) bool {
-			var isInMain bool
-
-			f, ok := node.(*ast.FuncDecl)
-			if ok && f.Name.Name == "main" {
-				isInMain = true
+			c, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
 			}
 
-			if isInMain {
-				c, ok := node.(*ast.CallExpr)
-				if !ok {
-					return true
-				}
+			s, ok := c.Fun.(*ast.SelectorExpr)
+			if !ok {
+				return true
+			}
 
-				s, ok := c.Fun.(*ast.SelectorExpr)
-				if !ok {
-					return true
-				}
+			i, ok := s.X.(*ast.Ident)
+			if !ok || i.Name != "os" {
+				return true
+			}
 
-				i, ok := s.X.(*ast.Ident)
-				if !ok || i.Name != "os" {
-					return true
-				}
-
-				if s.Sel.Name == "Exit" {
-					pos := s.Sel.NamePos
-					pass.Reportf(pos, "calling os.Exit in main is prohibited")
-				}
+			if s.Sel.Name == "Exit" {
+				pos := s.Sel.NamePos
+				pass.Reportf(pos, "calling os.Exit in main is prohibited")
 			}
 			return true
 		})
