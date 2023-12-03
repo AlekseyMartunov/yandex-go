@@ -13,5 +13,5 @@ func main() {
 
 func myFunc() {
 	fmt.Println("do something")
-	os.Exit(1)
+	os.Exit(1) // want "calling os.Exit in main is prohibited"
 }
