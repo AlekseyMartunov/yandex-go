@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"os/signal"
@@ -24,6 +25,12 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/users/simpleusers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/users/userspostgres"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/router"
+)
+
+var (
+	buildVersion string
+	buildDate    string
+	buildCommit  string
 )
 
 func main() {
@@ -75,6 +82,8 @@ func startServer(ctx context.Context) {
 	r := router.Route()
 	r.Mount("/debug", middleware.Profiler())
 
+	greet()
+
 	err = http.ListenAndServe(cfg.GetAddress(), r)
 	if err != nil {
 		panic(err)
@@ -121,4 +130,21 @@ func getConn(driverName string, cfg *config.Config) (*sql.DB, error) {
 		return conn, nil
 	}
 	return nil, nil
+}
+
+func greet() {
+	if buildVersion == "" {
+		buildVersion = "N/A"
+	}
+
+	if buildDate == "" {
+		buildDate = "N/A"
+	}
+
+	if buildCommit == "" {
+		buildCommit = "N/A"
+	}
+	fmt.Printf("Build version: %s\n", buildVersion)
+	fmt.Printf("Build date: %s\n", buildDate)
+	fmt.Printf("Build commit: %s\n", buildCommit)
 }
