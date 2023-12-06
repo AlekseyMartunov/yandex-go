@@ -1,3 +1,4 @@
+// Package handlers contains all app s handlers
 package handlers
 
 import (
@@ -6,11 +7,13 @@ import (
 	"net/http"
 )
 
+// batchRequest type uses to unmarshal http body
 type batchRequest struct {
 	CorrelationID string `json:"correlation_id"`
 	OriginalURL   string `json:"original_url"`
 }
 
+// batchResponse type uses to unmarshal http body
 type batchResponse struct {
 	CorrelationID string `json:"correlation_id"`
 	ShortURL      string `json:"short_url"`
@@ -19,6 +22,7 @@ type batchResponse struct {
 type jsonBatchReq []batchRequest
 type jsonBatchResp []batchResponse
 
+// BatchURL shorts any urls at ones
 func (s *ShortURLHandler) BatchURL(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

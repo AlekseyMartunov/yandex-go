@@ -1,3 +1,4 @@
+// Package handlers contains all app s handlers
 package handlers
 
 import (
@@ -10,8 +11,10 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
+// Str array of string for some strange functions :)
 type Str []string
 
+// DeleteURL uses to delete url
 func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("UserId")
 	b, err := io.ReadAll(r.Body)
@@ -34,10 +37,11 @@ func (s *ShortURLHandler) DeleteURL(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+// asyncDelURL uses to async deleting url
 func (s *ShortURLHandler) asyncDelURL() {
 	ticker := time.NewTicker(5 * time.Second)
 
-	messages := make([]simpleurl.URLToDel, 0, 50)
+	messages := make([]simpleurl.URLToDel, 0, 100)
 
 	for {
 		select {

@@ -1,3 +1,4 @@
+// Package urlpostgres contains sql query for communicate with db postgres
 package urlpostgres
 
 import (
@@ -11,20 +12,24 @@ import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
+// URLModel contains connection to postgres
 type URLModel struct {
 	db *sql.DB
 }
 
+// NewDB creates new db struct instance
 func NewDB(db *sql.DB) *URLModel {
 	return &URLModel{
 		db: db,
 	}
 }
 
+// Ping checks db is available
 func (m *URLModel) Ping() error {
 	return m.db.Ping()
 }
 
+// Save uses to saving new url pair
 func (m *URLModel) Save(key, val, userID string) error {
 	query := "INSERT INTO url (shorted, original, user_id) VALUES ($1, $2, $3)"
 	_, err := m.db.ExecContext(context.Background(), query, key, val, userID)
@@ -38,6 +43,7 @@ func (m *URLModel) Save(key, val, userID string) error {
 	return nil
 }
 
+// Get return original
 func (m *URLModel) Get(key string) (string, error) {
 	query := "SELECT original, deleted FROM url WHERE shorted = $1"
 	row := m.db.QueryRowContext(context.Background(), query, key)
@@ -57,6 +63,7 @@ func (m *URLModel) Get(key string) (string, error) {
 	return original.String, simpleurl.ErrEmptyKey
 }
 
+// SaveBatch save several different urls
 func (m *URLModel) SaveBatch(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
@@ -89,6 +96,7 @@ func (m *URLModel) SaveBatch(data *[][3]string, userID string) error {
 	return nil
 }
 
+// GetShorted return shorted ur by original
 func (m *URLModel) GetShorted(key string) (string, bool) {
 	query := "SELECT shorted FROM url WHERE original = $1"
 	row := m.db.QueryRowContext(context.Background(), query, key)
@@ -99,6 +107,7 @@ func (m *URLModel) GetShorted(key string) (string, bool) {
 	return original.String, original.Valid
 }
 
+// GetAllURL return all urls
 func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 	query := `SELECT shorted, original FROM url WHERE user_id = $1`
 	rows, err := m.db.QueryContext(context.Background(), query, userID)
@@ -131,6 +140,7 @@ func (m *URLModel) GetAllURL(userID string) ([][2]string, error) {
 
 }
 
+// DeleteURL delete url
 func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	ctx := context.Background()
 
@@ -153,6 +163,7 @@ func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	return nil
 }
 
+// Close uses to close connection to db
 func (m *URLModel) Close() error {
 	return m.db.Close()
 }

@@ -1,3 +1,4 @@
+// Package simpleurl uses when database dsn does not exist in config package
 package simpleurl
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// FileStorage uses when db dose not exist or connection unavailable
 type FileStorage struct {
 	filePath  string
 	data      map[string]string
@@ -17,6 +19,7 @@ type FileStorage struct {
 	sync.Mutex
 }
 
+// NewFileStorage return new struct
 func NewFileStorage(filePath string) (Storage, error) {
 	file, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -42,6 +45,7 @@ func NewFileStorage(filePath string) (Storage, error) {
 	return &s, nil
 }
 
+// Save new url pair
 func (s *FileStorage) Save(key, val, userID string) error {
 
 	for _, v := range s.data {
@@ -79,6 +83,7 @@ func (s *FileStorage) Save(key, val, userID string) error {
 	return err
 }
 
+// Get return origin url
 func (s *FileStorage) Get(key string) (string, error) {
 	val, ok := s.data[key]
 
@@ -88,6 +93,7 @@ func (s *FileStorage) Get(key string) (string, error) {
 	return val, nil
 }
 
+// SaveBatch save several different urls
 func (s *FileStorage) SaveBatch(data *[][3]string, userID string) error {
 	// [[a, b, c], [a, b, c], ...]
 	// a - CorrelationID
@@ -105,6 +111,7 @@ func (s *FileStorage) SaveBatch(data *[][3]string, userID string) error {
 	return nil
 }
 
+// GetShorted return shorted url by original
 func (s *FileStorage) GetShorted(key string) (string, bool) {
 	for k, v := range s.data {
 		if v == key {
@@ -114,18 +121,22 @@ func (s *FileStorage) GetShorted(key string) (string, bool) {
 	return "", false
 }
 
+// GetAllURL return all url
 func (s *FileStorage) GetAllURL(userID string) ([][2]string, error) {
 	return nil, nil
 }
 
+// DeleteURL delete
 func (s *FileStorage) DeleteURL(...URLToDel) error {
 	return nil
 }
 
+// Ping just mocks for db interface
 func (s *FileStorage) Ping() error {
 	return errors.New("this is a file")
 }
 
+// Close just mocks for db interface
 func (s *FileStorage) Close() error {
 	return nil
 }

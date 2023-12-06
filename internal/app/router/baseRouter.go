@@ -1,3 +1,4 @@
+// Package router store endpoints
 package router
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// ShortURLHandler interface show all endpoints in handlers
 type ShortURLHandler interface {
 	EncodeURL(w http.ResponseWriter, r *http.Request)
 	DecodeURL(w http.ResponseWriter, r *http.Request)
@@ -16,11 +18,13 @@ type ShortURLHandler interface {
 	DeleteURL(w http.ResponseWriter, r *http.Request)
 }
 
+// BaseRouter struct applications router
 type BaseRouter struct {
 	handler    ShortURLHandler
 	middleware []func(handler http.Handler) http.Handler
 }
 
+// NewBaseRouter create new instance
 func NewBaseRouter(h ShortURLHandler, m ...func(handler http.Handler) http.Handler) *BaseRouter {
 	return &BaseRouter{
 		handler:    h,
@@ -28,6 +32,7 @@ func NewBaseRouter(h ShortURLHandler, m ...func(handler http.Handler) http.Handl
 	}
 }
 
+// Route return chi router
 func (br *BaseRouter) Route() *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(br.middleware...)

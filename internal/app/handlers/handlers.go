@@ -1,3 +1,4 @@
+// Package handlers contains all app s handlers
 package handlers
 
 import (
@@ -28,6 +29,7 @@ type config interface {
 	GetDataBaseStatus() bool
 }
 
+// ShortURLHandler type store info about handles app
 type ShortURLHandler struct {
 	encoder encoder
 	cfg     config
@@ -35,6 +37,7 @@ type ShortURLHandler struct {
 	delCh   chan simpleurl.URLToDel
 }
 
+// NewShortURLHandler return new ShortURLHandler
 func NewShortURLHandler(e encoder, c config, ctx context.Context) *ShortURLHandler {
 	h := ShortURLHandler{
 		encoder: e,
@@ -47,6 +50,7 @@ func NewShortURLHandler(e encoder, c config, ctx context.Context) *ShortURLHandl
 	return &h
 }
 
+// EncodeURL encode url
 func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/plain")
 	data, err := io.ReadAll(r.Body)
@@ -74,6 +78,7 @@ func (s *ShortURLHandler) EncodeURL(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(id))
 }
 
+// DecodeURL decode url handler
 func (s *ShortURLHandler) DecodeURL(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "url_id")
 	url, err := s.encoder.Decode(id)

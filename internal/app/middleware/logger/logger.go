@@ -1,3 +1,4 @@
+// Package logger provider logging in application
 package logger
 
 import (
@@ -7,10 +8,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Logger simple logging struct
 type Logger struct {
 	defaultLogger *logrus.Logger
 }
 
+// NewLogger create new logger instance
 func NewLogger(level string) *Logger {
 	l := logrus.New()
 	lvl, err := logrus.ParseLevel(level)
@@ -33,17 +36,20 @@ type loggingResponseWriter struct {
 	responseData *responseData
 }
 
+// Write provides Write method to mock
 func (l *loggingResponseWriter) Write(b []byte) (int, error) {
 	size, err := l.ResponseWriter.Write(b)
 	l.responseData.size = size
 	return size, err
 }
 
+// WriteHeader provides WriteHeader method to mock
 func (l *loggingResponseWriter) WriteHeader(statusCode int) {
 	l.ResponseWriter.WriteHeader(statusCode)
 	l.responseData.status = statusCode
 }
 
+// WithLogging function to logging requests in middleware
 func (l *Logger) WithLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

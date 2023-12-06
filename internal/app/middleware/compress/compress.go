@@ -1,3 +1,4 @@
+// Package compress uses to add function compress in to middleware
 package compress
 
 import (
@@ -10,11 +11,13 @@ import (
 
 var gzipWriter = gzip.NewWriter(&bytes.Buffer{})
 
+// compressWriter mock stub in revenge of the original request
 type compressWriter struct {
 	w  http.ResponseWriter
 	zw *gzip.Writer
 }
 
+// newCompressWriter create new struct
 func newCompressWriter(w http.ResponseWriter) *compressWriter {
 	gzipWriter.Reset(w)
 	return &compressWriter{
@@ -23,14 +26,17 @@ func newCompressWriter(w http.ResponseWriter) *compressWriter {
 	}
 }
 
+// Header uses to override original header
 func (c *compressWriter) Header() http.Header {
 	return c.w.Header()
 }
 
+// Write uses to override original body
 func (c *compressWriter) Write(p []byte) (int, error) {
 	return c.zw.Write(p)
 }
 
+// WriteHeader uses to override original header
 func (c *compressWriter) WriteHeader(statusCode int) {
 	if statusCode < 300 {
 		c.w.Header().Set("Content-Encoding", "gzip")
@@ -38,15 +44,18 @@ func (c *compressWriter) WriteHeader(statusCode int) {
 	c.w.WriteHeader(statusCode)
 }
 
+// Close uses to close original header
 func (c *compressWriter) Close() error {
 	return c.zw.Close()
 }
 
+// compressReader uses to override original reader
 type compressReader struct {
 	r  io.ReadCloser
 	zr *gzip.Reader
 }
 
+// newCompressReader return new struct
 func newCompressReader(r io.ReadCloser) (*compressReader, error) {
 	zr, err := gzip.NewReader(r)
 	if err != nil {
@@ -59,10 +68,12 @@ func newCompressReader(r io.ReadCloser) (*compressReader, error) {
 	}, nil
 }
 
+// Reade uses to overrider original data
 func (c compressReader) Read(p []byte) (n int, err error) {
 	return c.zr.Read(p)
 }
 
+// Close uses to close original reader
 func (c *compressReader) Close() error {
 	if err := c.r.Close(); err != nil {
 		return err
@@ -70,6 +81,7 @@ func (c *compressReader) Close() error {
 	return c.zr.Close()
 }
 
+// Compress squeezes data
 func Compress(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

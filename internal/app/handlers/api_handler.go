@@ -1,3 +1,4 @@
+// Package handlers contains all app s handlers
 package handlers
 
 import (
@@ -10,14 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// jsonRequest type uses to unmarshal http body
 type jsonRequest struct {
 	URL string `json:"url"`
 }
 
+// jsonResponse type uses to unmarshal http body
 type jsonResponse struct {
 	Result string `json:"result"`
 }
 
+// EncodeAPI encode url
 func (s *ShortURLHandler) EncodeAPI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 

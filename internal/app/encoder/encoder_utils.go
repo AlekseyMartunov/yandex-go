@@ -1,9 +1,13 @@
+// Package encoder use to create unique short url
 package encoder
 
+// symbolsRunes, random key contain this runes
 var symbolsRunes = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+// size is a len of random key
 const size = 15
 
+// generateRandomID create random id
 func (e *Encoder) generateRandomID() string {
 
 	id := e.getRandomValues()
@@ -18,6 +22,7 @@ func (e *Encoder) generateRandomID() string {
 	return id
 }
 
+// getRandomValues creates random values
 func (e *Encoder) getRandomValues() string {
 
 	output := make([]rune, size)
