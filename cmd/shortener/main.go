@@ -1,16 +1,20 @@
 package main
 
 import (
+	"context"
 	"database/sql"
-	"net/http"
-
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
+	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"net/http"
+	_ "net/http/pprof"
+	"os/signal"
+	"syscall"
 
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/handlers"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/logger"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/migrations"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
@@ -21,6 +25,17 @@ import (
 )
 
 func main() {
+	ctx, stopApp := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stopApp()
+
+	go func() {
+		startServer(ctx)
+	}()
+
+	<-ctx.Done()
+}
+
+func startServer(ctx context.Context) {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
 
@@ -43,9 +58,7 @@ func main() {
 	}
 
 	encoder := encoder.NewEncoder(URLDB)
-	handler := handlers.NewShortURLHandler(encoder, cfg)
-
-	defer handler.Close()
+	handler := handlers.NewShortURLHandler(encoder, cfg, ctx)
 
 	tokenController := authentication.NewTokenController(dbUser)
 	log := logger.NewLogger("info")
@@ -57,7 +70,10 @@ func main() {
 		tokenController.CheckToken,
 	)
 
-	err = http.ListenAndServe(cfg.GetAddress(), router.Route())
+	r := router.Route()
+	r.Mount("/debug", middleware.Profiler())
+
+	err = http.ListenAndServe(cfg.GetAddress(), r)
 	if err != nil {
 		panic(err)
 	}

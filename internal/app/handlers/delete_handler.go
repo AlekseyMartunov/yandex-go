@@ -58,6 +58,15 @@ func (s *ShortURLHandler) asyncDelURL() {
 				continue
 			}
 			messages = messages[:0]
+
+		case <-s.ctx.Done():
+			close(s.delCh)
+			msg := <-s.delCh
+			err := s.encoder.DeleteURL(msg)
+			if err != nil {
+				log.Fatalln(err)
+			}
+			return
 		}
 	}
 }

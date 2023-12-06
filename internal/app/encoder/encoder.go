@@ -2,6 +2,8 @@ package encoder
 
 import (
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
+	"math/rand"
+	"time"
 )
 
 type storage interface {
@@ -15,11 +17,16 @@ type storage interface {
 }
 
 type Encoder struct {
+	random  *rand.Rand
 	storage storage
 }
 
 func NewEncoder(s storage) *Encoder {
-	return &Encoder{storage: s}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return &Encoder{
+		storage: s,
+		random:  r,
+	}
 }
 
 func (e *Encoder) Encode(url, userID string) (string, error) {
