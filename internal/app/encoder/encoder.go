@@ -1,9 +1,10 @@
 package encoder
 
 import (
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"math/rand"
 	"time"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
 type storage interface {

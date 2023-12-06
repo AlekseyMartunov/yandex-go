@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication"
 
 	mockAuthentication "github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/authentication/tests/mocks"
 )

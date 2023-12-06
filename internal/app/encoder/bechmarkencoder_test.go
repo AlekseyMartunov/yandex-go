@@ -1,8 +1,9 @@
 package encoder
 
 import (
-	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 	"testing"
+
+	storage2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 )
 
 func BenchmarkEncoder_Decode(b *testing.B) {

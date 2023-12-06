@@ -3,10 +3,12 @@ package handlers
 import (
 	"context"
 	"errors"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
-	"github.com/jackc/pgx/v5/pgconn"
 	"io"
 	"net/http"
+
+	"github.com/jackc/pgx/v5/pgconn"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/model/url/simpleurl"
 
 	"github.com/go-chi/chi/v5"
 )

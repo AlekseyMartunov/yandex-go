@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"database/sql"
-	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
-	"github.com/go-chi/chi/v5/middleware"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"net/http"
 	_ "net/http/pprof"
 	"os/signal"
 	"syscall"
+
+	"github.com/go-chi/chi/v5/middleware"
+	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/middleware/compress"
 
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/config"
 	"github.com/AlekseyMartunov/yandex-go.git/internal/app/encoder"
