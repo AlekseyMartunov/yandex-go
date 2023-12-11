@@ -1,13 +1,24 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"database/sql"
+	"encoding/pem"
 	"fmt"
+	"log"
+	"math/big"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -84,7 +95,13 @@ func startServer(ctx context.Context) {
 
 	greet()
 
-	err = http.ListenAndServe(cfg.GetAddress(), r)
+	if cfg.GetHTTPS() {
+		CreateCertificate()
+		err = http.ListenAndServeTLS(cfg.GetAddress(), "./tls/certificate", "./tls/private_key", r)
+	} else {
+		err = http.ListenAndServe(cfg.GetAddress(), r)
+	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -147,4 +164,54 @@ func greet() {
 	fmt.Printf("Build version: %s\n", buildVersion)
 	fmt.Printf("Build date: %s\n", buildDate)
 	fmt.Printf("Build commit: %s\n", buildCommit)
+}
+
+func CreateCertificate() {
+	cert := &x509.Certificate{
+		SerialNumber: big.NewInt(75949),
+		Subject: pkix.Name{
+			Country:      []string{"RU"},
+			Organization: []string{"MyCompany.com"},
+			Locality:     []string{"Some city, some street"},
+		},
+		IPAddresses:  []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().AddDate(0, 3, 0),
+		SubjectKeyId: []byte{1, 2, 3, 4, 6},
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:     x509.KeyUsageDigitalSignature,
+	}
+
+	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	certBytes, err := x509.CreateCertificate(rand.Reader, cert, cert, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var certPEM bytes.Buffer
+	pem.Encode(&certPEM, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: certBytes,
+	})
+
+	var privateKeyPEM bytes.Buffer
+	pem.Encode(&privateKeyPEM, &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+	})
+
+	err = os.WriteFile("tls/certificate", certPEM.Bytes(), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.WriteFile("tls/private_key", privateKeyPEM.Bytes(), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

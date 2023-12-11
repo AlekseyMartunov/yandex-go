@@ -4,6 +4,7 @@ package config
 import (
 	"flag"
 	"os"
+	"strconv"
 )
 
 // Config type store information about flags application
@@ -12,6 +13,7 @@ type Config struct {
 	baseHost        string `env:"BASE_URL"`
 	fileStoragePath string `env:"FILE_STORAGE_PATH"`
 	dataBaseDSN     string `env:"DATABASE_DSN"`
+	https           bool   `env:"ENABLE_HTTPS"`
 	dataBaseStatus  bool
 }
 
@@ -35,6 +37,8 @@ func (c *Config) GetConfig() {
 	flag.StringVar(&c.dataBaseDSN, "d", "",
 		"Параметры БД")
 
+	flag.BoolVar(&c.https, "s", false, "Использовать HTTPS")
+
 	flag.Parse()
 
 	if val, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
@@ -51,6 +55,15 @@ func (c *Config) GetConfig() {
 
 	if val, ok := os.LookupEnv("DATABASE_DSN"); ok {
 		c.dataBaseDSN = val
+	}
+
+	if val, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
+		v, err := strconv.ParseBool(val)
+		if err != nil {
+			c.https = false
+		}
+		c.https = v
+
 	}
 }
 
@@ -82,4 +95,9 @@ func (c *Config) GetDataBaseStatus() bool {
 // SetDataBaseStatus set db status
 func (c *Config) SetDataBaseStatus(status bool) {
 	c.dataBaseStatus = status
+}
+
+// GetHTTPS return bool value means should be use HTTPS or HTTP
+func (c *Config) GetHTTPS() bool {
+	return c.https
 }
