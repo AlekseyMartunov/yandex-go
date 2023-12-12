@@ -96,7 +96,7 @@ func startServer(ctx context.Context) {
 	greet()
 
 	if cfg.GetHTTPS() {
-		CreateCertificate()
+		createCertificate()
 		err = http.ListenAndServeTLS(cfg.GetAddress(), "./tls/certificate", "./tls/private_key", r)
 	} else {
 		err = http.ListenAndServe(cfg.GetAddress(), r)
@@ -166,7 +166,7 @@ func greet() {
 	fmt.Printf("Build commit: %s\n", buildCommit)
 }
 
-func CreateCertificate() {
+func createCertificate() {
 	cert := &x509.Certificate{
 		SerialNumber: big.NewInt(75949),
 		Subject: pkix.Name{
