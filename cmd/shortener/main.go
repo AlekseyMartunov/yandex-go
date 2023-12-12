@@ -47,7 +47,7 @@ func main() {
 func startServer(ctx context.Context) {
 	cfg := config.NewConfig()
 	cfg.GetConfig()
-
+	//test
 	conn, err := getConn("pgx", cfg)
 	if err != nil {
 		panic(err)
