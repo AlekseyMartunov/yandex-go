@@ -57,7 +57,7 @@ func main() {
 
 func startServer(ctx context.Context) {
 	cfg := config.NewConfig()
-	cfg.GetConfig("config.json")
+	cfg.GetConfig()
 
 	conn, err := getConn("pgx", cfg)
 	if err != nil {

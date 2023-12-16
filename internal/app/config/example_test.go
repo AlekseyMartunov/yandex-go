@@ -4,7 +4,7 @@ import "fmt"
 
 func Example() {
 	cfg := NewConfig()
-	cfg.GetConfig("")
+	cfg.GetConfig()
 
 	fmt.Println(cfg.GetAddress())
 	fmt.Println(cfg.GetShorterURL())
