@@ -28,7 +28,7 @@ func NewConfig() *Config {
 func (c *Config) GetConfig() {
 	var fileName string
 
-	flag.StringVar(&fileName, "-c", "", "фаил конфигурации")
+	flag.StringVar(&fileName, "c", "", "фаил конфигурации")
 	if val, ok := os.LookupEnv("CONFIG"); ok {
 		fileName = val
 	}
