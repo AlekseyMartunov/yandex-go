@@ -15,7 +15,7 @@ type Config struct {
 	BaseHost        string `env:"BASE_URL" json:"base_url"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH" json:"file_storage_path"`
 	DataBaseDSN     string `env:"DATABASE_DSN" json:"database_dsn"`
-	Https           bool   `env:"ENABLE_HTTPS" json:"enable_https"`
+	HTTPS           bool   `env:"ENABLE_HTTPS" json:"enable_https"`
 	DataBaseStatus  bool
 }
 
@@ -52,7 +52,7 @@ func (c *Config) GetConfig(fileName string) {
 	flag.StringVar(&c.DataBaseDSN, "d", "",
 		"Параметры БД")
 
-	flag.BoolVar(&c.Https, "s", false, "Использовать HTTPS")
+	flag.BoolVar(&c.HTTPS, "s", false, "Использовать HTTPS")
 
 	flag.Parse()
 
@@ -75,9 +75,9 @@ func (c *Config) GetConfig(fileName string) {
 	if val, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
 		v, err := strconv.ParseBool(val)
 		if err != nil {
-			c.Https = false
+			c.HTTPS = false
 		}
-		c.Https = v
+		c.HTTPS = v
 
 	}
 }
@@ -114,5 +114,5 @@ func (c *Config) SetDataBaseStatus(status bool) {
 
 // GetHTTPS return bool value means should be use HTTPS or HTTP
 func (c *Config) GetHTTPS() bool {
-	return c.Https
+	return c.HTTPS
 }
