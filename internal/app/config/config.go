@@ -2,19 +2,21 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
+	"log"
 	"os"
 	"strconv"
 )
 
 // Config type store information about flags application
 type Config struct {
-	addr            string `env:"SERVER_ADDRESS"`
-	baseHost        string `env:"BASE_URL"`
-	fileStoragePath string `env:"FILE_STORAGE_PATH"`
-	dataBaseDSN     string `env:"DATABASE_DSN"`
-	https           bool   `env:"ENABLE_HTTPS"`
-	dataBaseStatus  bool
+	Addr            string `env:"SERVER_ADDRESS" json:"server_address"`
+	BaseHost        string `env:"BASE_URL" json:"base_url"`
+	FileStoragePath string `env:"FILE_STORAGE_PATH" json:"file_storage_path"`
+	DataBaseDSN     string `env:"DATABASE_DSN" json:"database_dsn"`
+	Https           bool   `env:"ENABLE_HTTPS" json:"enable_https"`
+	DataBaseStatus  bool
 }
 
 // NewConfig create new config struct
@@ -23,81 +25,94 @@ func NewConfig() *Config {
 }
 
 // GetConfig update values of struct
-func (c *Config) GetConfig() {
+func (c *Config) GetConfig(fileName string) {
 
-	flag.StringVar(&c.addr, "a", "127.0.0.1:8080",
+	if fileName != "" {
+		var cfg Config
+		b, err := os.ReadFile(fileName)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		err = json.Unmarshal(b, &cfg)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	flag.StringVar(&c.Addr, "a", "127.0.0.1:8080",
 		"Адрес для запуска приложения")
 
-	flag.StringVar(&c.baseHost, "b", "http://127.0.0.1:8080",
+	flag.StringVar(&c.BaseHost, "b", "http://127.0.0.1:8080",
 		"Базовый адрес сокращенного URL")
 
-	flag.StringVar(&c.fileStoragePath, "f", "/tmp/short-url-db.json",
+	flag.StringVar(&c.FileStoragePath, "f", "/tmp/short-url-db.json",
 		"Путь до файла-хранилища")
 
-	flag.StringVar(&c.dataBaseDSN, "d", "",
+	flag.StringVar(&c.DataBaseDSN, "d", "",
 		"Параметры БД")
 
-	flag.BoolVar(&c.https, "s", false, "Использовать HTTPS")
+	flag.BoolVar(&c.Https, "s", false, "Использовать HTTPS")
 
 	flag.Parse()
 
 	if val, ok := os.LookupEnv("SERVER_ADDRESS"); ok {
-		c.addr = val
+		c.Addr = val
 	}
 
 	if val, ok := os.LookupEnv("BASE_URL"); ok {
-		c.baseHost = val
+		c.BaseHost = val
 	}
 
 	if val, ok := os.LookupEnv("FILE_STORAGE_PATH"); ok {
-		c.fileStoragePath = val
+		c.FileStoragePath = val
 	}
 
 	if val, ok := os.LookupEnv("DATABASE_DSN"); ok {
-		c.dataBaseDSN = val
+		c.DataBaseDSN = val
 	}
 
 	if val, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
 		v, err := strconv.ParseBool(val)
 		if err != nil {
-			c.https = false
+			c.Https = false
 		}
-		c.https = v
+		c.Https = v
 
 	}
 }
 
 // GetAddress return address
 func (c *Config) GetAddress() string {
-	return c.addr
+	return c.Addr
 }
 
 // GetShorterURL return prefix of shorten url
 func (c *Config) GetShorterURL() string {
-	return c.baseHost + "/"
+	return c.BaseHost + "/"
 }
 
 // GetFileStoragePath return file storage path
 func (c *Config) GetFileStoragePath() string {
-	return c.fileStoragePath
+	return c.FileStoragePath
 }
 
 // GetDataBaseDSN return database dsn
 func (c *Config) GetDataBaseDSN() string {
-	return c.dataBaseDSN
+	return c.DataBaseDSN
 }
 
 // GetDataBaseStatus return status of db
 func (c *Config) GetDataBaseStatus() bool {
-	return c.dataBaseStatus
+	return c.DataBaseStatus
 }
 
 // SetDataBaseStatus set db status
 func (c *Config) SetDataBaseStatus(status bool) {
-	c.dataBaseStatus = status
+	c.DataBaseStatus = status
 }
 
 // GetHTTPS return bool value means should be use HTTPS or HTTP
 func (c *Config) GetHTTPS() bool {
-	return c.https
+	return c.Https
 }
