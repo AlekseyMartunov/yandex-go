@@ -100,7 +100,7 @@ func startServer(ctx context.Context) {
 		<-ctx.Done()
 		err := srv.Shutdown(context.Background())
 		if err != nil {
-			log.Printf("Server shutdown: %w", err)
+			log.Fatal(err)
 		}
 		close(closeChan)
 	}()
