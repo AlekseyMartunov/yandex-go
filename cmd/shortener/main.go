@@ -45,14 +45,10 @@ var (
 )
 
 func main() {
-	ctx, stopApp := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx, stopApp := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	defer stopApp()
 
-	go func() {
-		startServer(ctx)
-	}()
-
-	<-ctx.Done()
+	startServer(ctx)
 }
 
 func startServer(ctx context.Context) {
@@ -81,11 +77,11 @@ func startServer(ctx context.Context) {
 	handler := handlers.NewShortURLHandler(encoder, cfg, ctx)
 
 	tokenController := authentication.NewTokenController(dbUser)
-	log := logger.NewLogger("info")
+	logger := logger.NewLogger("info")
 
 	router := router.NewBaseRouter(
 		handler,
-		log.WithLogging,
+		logger.WithLogging,
 		compress.Compress,
 		tokenController.CheckToken,
 	)
@@ -95,16 +91,33 @@ func startServer(ctx context.Context) {
 
 	greet()
 
+	var srv = http.Server{Addr: cfg.Addr}
+	srv.Handler = r
+
+	closeChan := make(chan struct{})
+
+	go func() {
+		<-ctx.Done()
+		err := srv.Shutdown(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+		close(closeChan)
+	}()
+
 	if cfg.GetHTTPS() {
 		createCertificate()
-		err = http.ListenAndServeTLS(cfg.GetAddress(), "./tls/certificate", "./tls/private_key", r)
+		err = srv.ListenAndServeTLS("./tls/certificate", "./tls/private_key")
 	} else {
-		err = http.ListenAndServe(cfg.GetAddress(), r)
+		err = srv.ListenAndServe()
 	}
 
-	if err != nil {
+	if err != http.ErrServerClosed {
 		panic(err)
 	}
+
+	<-closeChan
+	fmt.Println("--Server Shutdown gracefully--")
 }
 
 func createStorageURL(conn *sql.DB, cfg *config.Config) (simpleurl.Storage, error) {
