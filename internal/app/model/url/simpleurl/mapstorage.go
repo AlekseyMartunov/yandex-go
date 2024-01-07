@@ -84,6 +84,11 @@ func (s *MapStorage) Ping() error {
 	return errors.New("this is a map")
 }
 
+// Statistics return how urls and users store in application
+func (s *MapStorage) Statistics() (int, int) {
+	return 0, 0
+}
+
 // Close just mocks for db interface
 func (s *MapStorage) Close() error {
 	return nil

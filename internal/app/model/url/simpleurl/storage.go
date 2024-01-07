@@ -11,6 +11,7 @@ type Storage interface {
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
 	DeleteURL(...URLToDel) error
+	Statistics() (int, int)
 	Ping() error
 	Close() error
 }

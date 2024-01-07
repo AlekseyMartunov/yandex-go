@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"log"
+	"net"
 	"os"
 	"strconv"
 )
@@ -17,6 +18,12 @@ type Config struct {
 	DataBaseDSN     string `env:"DATABASE_DSN" json:"database_dsn"`
 	HTTPS           bool   `env:"ENABLE_HTTPS" json:"enable_https"`
 	DataBaseStatus  bool
+	TrustedIP       *net.IPNet
+}
+
+// supportIP help with convert json value to Config store
+type supportIP struct {
+	IP string `json:"trusted_subnet"`
 }
 
 // NewConfig create new config struct
@@ -43,6 +50,23 @@ func (c *Config) GetConfig() {
 		err = json.Unmarshal(b, &cfg)
 		if err != nil {
 			log.Fatalln(err)
+		}
+
+		sup := supportIP{}
+		err = json.Unmarshal(b, &sup)
+		if sup.IP != "" {
+			_, ip, err := net.ParseCIDR(sup.IP)
+			if err == nil {
+				c.TrustedIP = ip
+			}
+		}
+	}
+
+	s := flag.String("t", "", "trusted IP")
+	if s != nil && *s != "" {
+		_, ip, err := net.ParseCIDR(*s)
+		if err == nil {
+			c.TrustedIP = ip
 		}
 	}
 
@@ -84,7 +108,13 @@ func (c *Config) GetConfig() {
 			c.HTTPS = false
 		}
 		c.HTTPS = v
+	}
 
+	if val, ok := os.LookupEnv("TRUSTED_SUBNET"); ok {
+		_, ip, err := net.ParseCIDR(val)
+		if err == nil {
+			c.TrustedIP = ip
+		}
 	}
 }
 
@@ -121,4 +151,9 @@ func (c *Config) SetDataBaseStatus(status bool) {
 // GetHTTPS return bool value means should be use HTTPS or HTTP
 func (c *Config) GetHTTPS() bool {
 	return c.HTTPS
+}
+
+// GetTrustedIP return trusted IP
+func (c *Config) GetTrustedIP() *net.IPNet {
+	return c.TrustedIP
 }
