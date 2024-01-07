@@ -89,6 +89,7 @@ func (e *Encoder) DeleteURL(messages ...simpleurl.URLToDel) error {
 	return e.storage.DeleteURL(messages...)
 }
 
+// Statistics return info about users and urls stored in application
 func (e *Encoder) Statistics() (int, int) {
 	return e.storage.Statistics()
 }
