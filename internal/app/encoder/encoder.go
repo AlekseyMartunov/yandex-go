@@ -15,6 +15,7 @@ type storage interface {
 	GetShorted(key string) (string, bool)
 	GetAllURL(userID string) ([][2]string, error)
 	DeleteURL(...simpleurl.URLToDel) error
+	Statistics() (int, int)
 	Ping() error
 }
 
@@ -86,6 +87,10 @@ func (e *Encoder) GetAllURL(userID string) ([][2]string, error) {
 // DeleteURL deletes urp
 func (e *Encoder) DeleteURL(messages ...simpleurl.URLToDel) error {
 	return e.storage.DeleteURL(messages...)
+}
+
+func (e *Encoder) Statistics() (int, int) {
+	return e.storage.Statistics()
 }
 
 // Ping checks store is available

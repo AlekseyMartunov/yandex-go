@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -22,11 +23,13 @@ type encoder interface {
 	GetAllURL(userID string) ([][2]string, error)
 	DeleteURL(...simpleurl.URLToDel) error
 	Ping() error
+	Statistics() (int, int)
 }
 
 type config interface {
 	GetShorterURL() string
 	GetDataBaseStatus() bool
+	GetTrustedIP() *net.IPNet
 }
 
 // ShortURLHandler type store info about handles app
