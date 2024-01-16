@@ -10,6 +10,9 @@ import (
 	"database/sql"
 	"encoding/pem"
 	"fmt"
+	grpc2 "github.com/AlekseyMartunov/yandex-go.git/internal/app/grpc"
+	"github.com/AlekseyMartunov/yandex-go.git/internal/app/grpc/server"
+	"google.golang.org/grpc"
 	"log"
 	"math/big"
 	"net"
@@ -103,6 +106,21 @@ func startServer(ctx context.Context) {
 			log.Fatal(err)
 		}
 		close(closeChan)
+	}()
+
+	go func() {
+		listen, err := net.Listen("tcp", ":8888")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		URLService := server.NewServiceURL(encoder)
+		s := grpc.NewServer()
+		grpc2.RegisterUrlServiceServer(s, URLService)
+
+		if err := s.Serve(listen); err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	if cfg.GetHTTPS() {
