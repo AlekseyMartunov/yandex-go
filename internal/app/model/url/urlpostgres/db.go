@@ -163,6 +163,23 @@ func (m *URLModel) DeleteURL(messages ...simpleurl.URLToDel) error {
 	return nil
 }
 
+// Statistics return how urls and users store in application
+func (m *URLModel) Statistics() (int, int) {
+	query1 := "SELECT COUNT(shorted) FROM url"
+	query2 := "SELECT COUNT(user_id) FROM users"
+
+	users := 0
+	urls := 0
+
+	row1 := m.db.QueryRowContext(context.Background(), query1)
+	row2 := m.db.QueryRowContext(context.Background(), query2)
+
+	row1.Scan(urls)
+	row2.Scan(users)
+
+	return urls, users
+}
+
 // Close uses to close connection to db
 func (m *URLModel) Close() error {
 	return m.db.Close()

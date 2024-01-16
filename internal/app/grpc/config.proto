@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = "github.com/AlekseyMartunov/yandex-go.git/internal/app/grpc";
+
+message AddUrlRequest {
+  string key = 1;
+  string user_id = 2;
+}
+
+message AddUrlResponse {
+  string shorted = 1;
+  string error = 2;
+}
+
+message GetUrlRequest {
+  string original = 1;
+}
+
+message GetUrlResponse {
+  string shorted = 1;
+}
+
+message GetAllUrlRequest {
+  string user_id = 1;
+}
+
+message PairUrl {
+  string shorted = 1;
+  string original = 2;
+}
+
+message GetAllUrlResponse {
+  repeated PairUrl PairUrl = 1;
+}
+
+service UrlService {
+  rpc Add(AddUrlRequest) returns (AddUrlResponse);
+  rpc GetShorted(GetUrlRequest) returns (GetUrlResponse);
+  rpc GetAllForUser(GetAllUrlRequest) returns (GetAllUrlResponse);
+}

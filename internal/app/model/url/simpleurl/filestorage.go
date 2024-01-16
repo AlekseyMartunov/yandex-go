@@ -136,6 +136,11 @@ func (s *FileStorage) Ping() error {
 	return errors.New("this is a file")
 }
 
+// Statistics return how urls and users store in application
+func (s *FileStorage) Statistics() (int, int) {
+	return 0, 0
+}
+
 // Close just mocks for db interface
 func (s *FileStorage) Close() error {
 	return nil

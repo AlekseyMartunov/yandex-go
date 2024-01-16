@@ -16,6 +16,7 @@ type ShortURLHandler interface {
 	BatchURL(w http.ResponseWriter, r *http.Request)
 	GetAllURL(w http.ResponseWriter, r *http.Request)
 	DeleteURL(w http.ResponseWriter, r *http.Request)
+	Stats(w http.ResponseWriter, r *http.Request)
 }
 
 // BaseRouter struct applications router
@@ -40,6 +41,7 @@ func (br *BaseRouter) Route() *chi.Mux {
 	router.Get("/{url_id}", br.handler.DecodeURL)
 	router.Get("/ping", br.handler.DataBaseStatus)
 	router.Get("/api/user/urls", br.handler.GetAllURL)
+	router.Get("/api/internal/stats", br.handler.Stats)
 
 	router.Post("/", br.handler.EncodeURL)
 	router.Post("/api/shorten", br.handler.EncodeAPI)
