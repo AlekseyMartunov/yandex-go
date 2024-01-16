@@ -53,7 +53,7 @@ func (c *Config) GetConfig() {
 		}
 
 		sup := supportIP{}
-		err = json.Unmarshal(b, &sup)
+		json.Unmarshal(b, &sup)
 		if sup.IP != "" {
 			_, ip, err := net.ParseCIDR(sup.IP)
 			if err == nil {
